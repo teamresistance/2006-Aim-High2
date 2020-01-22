@@ -27,6 +27,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         IO.init();
+        JS_IO.init();
         Shooter.init();
         Turret.init();
         Lifter.init();
@@ -67,8 +68,8 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {
         IO.update();
         Shooter.update();
-        // Turret.update();
-        // Lifter.update();
+        Turret.update();
+        Lifter.update();
         // TestColor1.update();
         // TestColor2.update();
     }

@@ -26,7 +26,7 @@ import frc.io.js_btns.Pov;
 
 //Declares all joysticks, buttons, axis & pov's.
 public class JS_IO{
-    public static int jsConfig = 0;     //0=Joysticks, 1=left Joystick only, 2=gamePad only
+    public static int jsConfig = 1;     //0=Joysticks, 1=left Joystick only, 2=gamePad only
                                         //3=Mixed LJS & GP, 4=Nintendo Pad
     // Declare all possible Joysticks
     public static Joystick leftJoystick = new Joystick(0);      // Left JS
@@ -53,7 +53,7 @@ public class JS_IO{
     public static Button turretZero;    // Rotate forward
 
     // Shooter testing only on Norm3JS
-    public static Button ptrShtrDiag = new Button(coJoystick, 11);
+    //public static Button ptrShtrDiag = new Button(coJoystick, 11);
 
     // Constructor
     public JS_IO(){
@@ -61,10 +61,11 @@ public class JS_IO{
     }
 
     public static void init(){
-        SmartDashboard.putNumber("JS_Config", 0);
+        SmartDashboard.putNumber("JS_Config", jsConfig);
         configJS();
     }
 
+    //can put this under a button press
     public static void update() {   //Chk for Joystick configuration
         if(jsConfig != SmartDashboard.getNumber("JS_Config", 0)){
             jsConfig = (int)SmartDashboard.getNumber("JS_Config", 0);
@@ -125,7 +126,7 @@ public class JS_IO{
         turretZero = new Button(coJoystick, 9);
 
         // Shooter testing only on Norm3JS
-        ptrShtrDiag = new Button(coJoystick, 11);
+     //   ptrShtrDiag = new Button(coJoystick, 11);
     }
 
     // ----- gamePad only --------

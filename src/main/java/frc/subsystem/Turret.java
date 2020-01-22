@@ -29,7 +29,7 @@ import frc.util.timers.OnOffDly;
 
 public class Turret {
     private static Victor turret = IO.turret;
-    private static AnalogInput turretPot = IO.turretPot;
+    //private static AnalogInput turretPot = IO.turretPot;
 
     private static double turretPct = 0.7;  // Used as -/+ limit
     private static double turretFB = 0.0;   // Scaled turret pot to degrees
@@ -51,14 +51,14 @@ public class Turret {
     // I am the determinator
     private static void determ(){
         if(JS_IO.turretJSDir.get()) state = 1;
-        if(!JS_IO.turretSP.isNone()) state = 2; // If POV pressed switch to POV SP
+        if(JS_IO.turretSP.isNone()) state = 2; // If POV pressed switch to POV SP
         if(JS_IO.turretZero.get()) state = 3;
     }
 
     public static void update() {
         sdbUpdate();
         determ();
-        turretPotUpd();
+        //turretPotUpd();
         //------------- Main State Machine --------------
         // cmd update( shooter speed )
         switch(state){
@@ -70,7 +70,7 @@ public class Turret {
         case 1: //Control with JS
             turretPct = JS_IO.turretRot.get();
             cmdUpdate( turretPct );
-            prvState = state;
+            //prvState = state;
             break;
         case 2: //Control position to SP, by POV
             turretSP = JS_IO.turretSP.get() - 180.0;
@@ -97,22 +97,27 @@ public class Turret {
         SmartDashboard.putNumber("Turret FB", turretFB);
         SmartDashboard.putBoolean("Turret CCW ES", IO.turretCCWes.get());
         SmartDashboard.putBoolean("Turret CW ES", IO.turretCWes.get());
+        SmartDashboard.putNumber("turret state", state);
+        SmartDashboard.putBoolean("CCW limit", IO.turretCCWes.get());
+        SmartDashboard.putBoolean("CW limit", IO.turretCWes.get());
     }
 
     // Send commands to turret motor
     private static void cmdUpdate(double spd){
-        if( Math.abs(turretFB) > 135.0 ) spd = 0.0;
-        if( IO.turretCCWes.get() && spd < 0 ) spd = 0;
-        if( IO.turretCWes.get() && spd > 0 ) spd = 0;
+       // if( Math.abs(turretFB) > 135.0 ) spd = 0.0;
+       if( !IO.turretCCWes.get() && spd < 0 ) spd = 0;
+        if( !IO.turretCWes.get() && spd > 0 ) spd = 0;
+        SmartDashboard.putNumber("Turret xval", spd);
         turret.set(spd);
     }
 
     // Scale turret pot
+    /*
     private static void turretPotUpd(){
         turretFB = BotMath.Span(turretPot.getAverageVoltage(),
                             0.0, 5.0, -135.0, 135.0, false, false);
     }
-
+*/
     //Returns proportional response.  Poorman's P Loop
     public static double propCtl(double sp, double fb ){
         double err = fb - sp;

@@ -37,7 +37,7 @@ import frc.util.timers.OnOffDly;
 public class Shooter {
     private static TalonSRX shooter = IO.shooter;
 
-    private static double shooterPct = 0.7;
+    private static double shooterPct = 0.1;
 
     private static int state;
     private static int prvState;
@@ -49,6 +49,7 @@ public class Shooter {
 
     public static void init() {
         SmartDashboard.putNumber("Shooter Spd", shooterPct);
+        shooter.setSelectedSensorPosition(0);
         cmdUpdate(0.0);
         state = 0;
     }
@@ -57,6 +58,7 @@ public class Shooter {
     private static void determ(){
         if(JS_IO.shooterRun.get()) state = 1;
         if(JS_IO.shooterStop.get()) state = 0;
+        
     }
 
     public static void update() {
@@ -75,11 +77,11 @@ public class Shooter {
             if(!JS_IO.shooterRun.get()) state = 3;
             break;
         case 2: // Shooter slow, bump to compensate
-            cmdUpdate( 100.0 );
+            cmdUpdate( 1 );
             prvState = state;
             break;
         case 3: // Shooter idle after shooting once
-            cmdUpdate( 0.3 );
+            cmdUpdate( 0.05 );
             prvState = state;
             break;
         default: // Default, mtr=0.0
@@ -93,6 +95,8 @@ public class Shooter {
     // Smartdashboard shtuff
     private static void sdbUpdate(){
         shooterPct = SmartDashboard.getNumber("Shoot Spd", 0.7);
+        SmartDashboard.putNumber("encoder pos", shooter.getSelectedSensorPosition());
+        SmartDashboard.putNumber("encoder velocity", shooter.getSelectedSensorVelocity());
     }
 
     // Send commands to shooter motor

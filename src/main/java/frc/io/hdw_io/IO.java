@@ -25,15 +25,15 @@ public class IO {
     public static AHRS ahrs;
 
     // PDP
-    public static PowerDistributionPanel pdp = new PowerDistributionPanel(21);
+    public static PowerDistributionPanel pdp = new PowerDistributionPanel(1);
 
     // Turret
     public static Victor lifter = new Victor(0);
     public static Victor turret = new Victor(1);
     public static TalonSRX shooter = new TalonSRX(12);
 
-    public static Encoder shooterRPM = new Encoder(0, 1);
-    public static AnalogInput turretPot = new AnalogInput(0);    //Figure out how to chg to pot interface
+    //public static Encoder shooterRPM = new Encoder(0, 1);
+   // public static AnalogInput turretPot = new AnalogInput(0);    //Figure out how to chg to pot interface
     public static DigitalInput turretCCWes = new DigitalInput(0);   // CCW End Switch
     public static DigitalInput turretCWes = new DigitalInput(1);    // CC End Switch
 
@@ -55,7 +55,7 @@ public class IO {
     
 
     public static void init(){
-        shooter.setInverted(false);
+        shooter.setInverted(true);
         shooter.setSensorPhase(false); // <<<<<< Adjust this to correct phasing with motor
 
     }
@@ -66,11 +66,6 @@ public class IO {
         //------- Shooter Talon pidf control setup -------------
         /* check our live faults */
         shooter.getFaults(_faults);
-        if(JS_IO.ptrShtrDiag.get()) {
-            System.out.println("Sensor Vel:" + shooter.getSelectedSensorVelocity());
-            System.out.println("Sensor Pos:" + shooter.getSelectedSensorPosition());
-            System.out.println("Out %" + shooter.getMotorOutputPercent());
-            // System.out.println("Out Of Phase:" + shooter.SensorOutOfPhase);
-        }
+       
     }
 }
