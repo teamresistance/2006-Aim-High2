@@ -135,7 +135,7 @@ public class JS_IO{
         // All stick axisesssss
         leftDrive = new Axis(gamePad, 1);
         rightDrive = new Axis(gamePad, 5);
-        turretRot = new Axis(gamePad, 4);
+        turretRot = new Axis(gamePad, 4);       // Neg = CW, Pos = CCW
 
         // Turret buttons
         shooterRun = new Button(gamePad, 6);

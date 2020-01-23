@@ -19,6 +19,7 @@ Sequence:
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.Victor;
 
 import frc.io.hdw_io.IO;
@@ -68,7 +69,7 @@ public class Turret {
             prvState = state;
             break;
         case 1: //Control with JS
-            turretPct = JS_IO.turretRot.get();
+            turretPct = -JS_IO.turretRot.get();     //Neg = CW, Pos = CCW
             cmdUpdate( turretPct );
             //prvState = state;
             break;
@@ -95,20 +96,22 @@ public class Turret {
         SmartDashboard.putNumber("Turret Spd", turretPct);
         SmartDashboard.putNumber("Turret SP", turretSP);
         SmartDashboard.putNumber("Turret FB", turretFB);
-        SmartDashboard.putBoolean("Turret CCW ES", IO.turretCCWes.get());
-        SmartDashboard.putBoolean("Turret CW ES", IO.turretCWes.get());
+        SmartDashboard.putNumber("Turret CCW ES", IO.turretCCWCntr.get());
+        SmartDashboard.putNumber("Turret CW ES", IO.turretCWCntr.get());
         SmartDashboard.putNumber("turret state", state);
-        SmartDashboard.putBoolean("CCW limit", IO.turretCCWes.get());
-        SmartDashboard.putBoolean("CW limit", IO.turretCWes.get());
+        // SmartDashboard.putBoolean("CCW limit", IO.turretCCWes.get());
+        // SmartDashboard.putBoolean("CW limit", IO.turretCWes.get());
     }
 
     // Send commands to turret motor
     private static void cmdUpdate(double spd){
-       // if( Math.abs(turretFB) > 135.0 ) spd = 0.0;
-       if( !IO.turretCCWes.get() && spd < 0 ) spd = 0;
-        if( !IO.turretCWes.get() && spd > 0 ) spd = 0;
+        // if( Math.abs(turretFB) > 135.0 ) spd = 0.0;
+        if( IO.turretCCWCntr.get() > 0 && spd < 0 ) spd = 0;
+        if( IO.turretCWCntr.get() > 0 && spd > 0 ) spd = 0;
         SmartDashboard.putNumber("Turret xval", spd);
         turret.set(spd);
+        if( spd > 0.3 ) IO.turretCCWCntr.reset();
+        if( spd < -0.3 ) IO.turretCWCntr.reset();
     }
 
     // Scale turret pot

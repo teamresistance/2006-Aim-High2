@@ -37,7 +37,8 @@ import frc.util.timers.OnOffDly;
 public class Shooter {
     private static TalonSRX shooter = IO.shooter;
 
-    private static double shooterPct = 0.1;
+    private static double shooterPct = -0.7;
+    private static double shtrIdlePct = -0.3;
 
     private static int state;
     private static int prvState;
@@ -49,6 +50,7 @@ public class Shooter {
 
     public static void init() {
         SmartDashboard.putNumber("Shooter Spd", shooterPct);
+        SmartDashboard.putNumber("Shtr Idle Spd", shtrIdlePct);
         shooter.setSelectedSensorPosition(0);
         cmdUpdate(0.0);
         state = 0;
@@ -81,7 +83,7 @@ public class Shooter {
             prvState = state;
             break;
         case 3: // Shooter idle after shooting once
-            cmdUpdate( 0.05 );
+            cmdUpdate( shtrIdlePct );
             prvState = state;
             break;
         default: // Default, mtr=0.0
@@ -94,7 +96,8 @@ public class Shooter {
 
     // Smartdashboard shtuff
     private static void sdbUpdate(){
-        shooterPct = SmartDashboard.getNumber("Shoot Spd", 0.7);
+        shooterPct = SmartDashboard.getNumber("Shooter Spd", shooterPct);
+        shtrIdlePct = SmartDashboard.getNumber("Shtr Idle Spd", shtrIdlePct);
         SmartDashboard.putNumber("encoder pos", shooter.getSelectedSensorPosition());
         SmartDashboard.putNumber("encoder velocity", shooter.getSelectedSensorVelocity());
     }
@@ -102,6 +105,7 @@ public class Shooter {
     // Send commands to shooter motor
     private static void cmdUpdate(double spd){
         shooter.set(ControlMode.PercentOutput, spd);
+        SmartDashboard.putNumber("Shtr Cmd Spd", spd);
     }
 
     //Returns if motor is off.

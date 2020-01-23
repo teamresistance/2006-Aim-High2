@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -33,9 +34,11 @@ public class IO {
     public static TalonSRX shooter = new TalonSRX(12);
 
     //public static Encoder shooterRPM = new Encoder(0, 1);
-   // public static AnalogInput turretPot = new AnalogInput(0);    //Figure out how to chg to pot interface
-    public static DigitalInput turretCCWes = new DigitalInput(0);   // CCW End Switch
-    public static DigitalInput turretCWes = new DigitalInput(1);    // CC End Switch
+    // public static AnalogInput turretPot = new AnalogInput(0);    //Figure out how to chg to pot interface
+    // public static DigitalInput turretCCWes = new DigitalInput(0);   // CCW End Switch
+    // public static DigitalInput turretCWes = new DigitalInput(1);    // CC End Switch
+    public static Counter turretCCWCntr = new Counter(0);           // CCW counter
+    public static Counter turretCWCntr = new Counter(1);            // CW Counter
 
     //---------- WoF, Color Sensor -----------------
     /**
@@ -61,7 +64,7 @@ public class IO {
     }
 
     public static void update(){
-        SmartDashboard.putNumber("Shooter Pwr", pdp.getCurrent(12));
+        SmartDashboard.putNumber("Shooter Pwr", pdp.getCurrent(0));
 
         //------- Shooter Talon pidf control setup -------------
         /* check our live faults */
