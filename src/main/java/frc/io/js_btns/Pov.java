@@ -44,6 +44,14 @@ public class Pov{
 		existDflt = exDefault;
 	}
 
+	// assign a new joystick & POV
+	public void setPov(Joystick injoystick, int inpovID){
+		joystick = injoystick;
+		povID = inpovID;
+		exists = joystick != null;
+		existDflt = inpovID;		// null js, use pov default
+	}
+
 	// get POV value
 	public int get() {
 		return exists ? joystick.getPOV() : existDflt;

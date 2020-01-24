@@ -43,6 +43,14 @@ public class Button{
 		existDflt = exDefault;
 	}
 
+	// assign a new joystick & button
+	public void setButton(Joystick injoystick, int inbuttonID){
+		joystick = injoystick;
+		buttonID = inbuttonID;
+		exists = joystick != null;
+		existDflt = buttonID % 2 == 0 ? false : true;	// If even default true
+	}
+
 	// get current value
 	public boolean get() {
 		return exists ? joystick.getRawButton(buttonID) : existDflt;

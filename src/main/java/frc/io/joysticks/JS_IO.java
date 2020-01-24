@@ -37,23 +37,23 @@ public class JS_IO{
     public static Joystick arJS[] = {leftJoystick,rightJoystick, coJoystick,
                                      gamePad, neoPad};
     // Declare all stick control
-    public static Axis leftDrive;     // Left Drive
-    public static Axis rightDrive;    // Right Drive
-    public static Axis turretRot;     // Rotate turret
+    public static Axis leftDrive = new Axis();     // Left Drive
+    public static Axis rightDrive = new Axis();    // Right Drive
+    public static Axis turretRot = new Axis();     // Rotate turret
 
     // Turret buttons
-    public static Button shooterRun;    // Run shooter (trigger) else idle
-    public static Button shooterStop;   // Stop shooter
-    public static Button turretCW;      // Turn turret CW
-    public static Button turretCCW;     // Turn turret CCW
-    public static Button lifterUp;      // Run motor to lift balls
-    public static Button lifterDn;      // Run motor to lower balls
-    public static Button turretJSDir;   // Directly rotate with JS
-    public static Pov turretSP;         // Rotate by Pot SP with JS 0/45/90/.../315
-    public static Button turretZero;    // Rotate forward
+    public static Button shooterRun = new Button();    // Run shooter (trigger) else idle
+    public static Button shooterStop = new Button();   // Stop shooter
+    public static Button turretCW = new Button();      // Turn turret CW
+    public static Button turretCCW = new Button();     // Turn turret CCW
+    public static Button lifterUp = new Button();      // Run motor to lift balls
+    public static Button lifterDn = new Button();      // Run motor to lower balls
+    public static Button turretJSDir = new Button();   // Directly rotate with JS
+    public static Pov turretSP = new Pov();         // Rotate by Pot SP with JS 0/45/90/.../315
+    public static Button turretZero = new Button();    // Rotate forward
 
     // Shooter testing only on Norm3JS
-    //public static Button ptrShtrDiag = new Button(coJoystick, 11);
+    //public static Button ptrShtrDiag.set(coJoystick, 11);
 
     // Constructor
     public JS_IO(){
@@ -110,44 +110,44 @@ public class JS_IO{
 
         // All stick axisesssss
         leftDrive = new Axis(leftJoystick, 1);
-        rightDrive = new Axis(rightJoystick, 1);
-        turretRot = new Axis(coJoystick, 0);
+        rightDrive.setAxis(rightJoystick, 1);
+        turretRot.setAxis(coJoystick, 0);
 
         // Turret buttons
-        shooterRun = new Button(rightJoystick, 1);
-        shooterStop = new Button(rightJoystick, 6);
-        turretCW = new Button(rightJoystick, 12);
-        turretCCW = new Button(rightJoystick, 11);
-        lifterUp = new Button(rightJoystick, 3);
-        lifterDn = new Button(rightJoystick, 5);
+        shooterRun.setButton(rightJoystick, 1);
+        shooterStop.setButton(rightJoystick, 6);
+        turretCW.setButton(rightJoystick, 12);
+        turretCCW.setButton(rightJoystick, 11);
+        lifterUp.setButton(rightJoystick, 3);
+        lifterDn.setButton(rightJoystick, 5);
 
-        turretJSDir = new Button(coJoystick, 7);
-        turretSP = new Pov(coJoystick, 0);
-        turretZero = new Button(coJoystick, 9);
+        turretJSDir.setButton(coJoystick, 7);
+        turretSP.setPov(coJoystick, 0);
+        turretZero.setButton(coJoystick, 9);
 
         // Shooter testing only on Norm3JS
-     //   ptrShtrDiag = new Button(coJoystick, 11);
+     //   ptrShtrDiag.setButton(coJoystick, 11);
     }
 
     // ----- gamePad only --------
     private static void A_GP(){
 
         // All stick axisesssss
-        leftDrive = new Axis(gamePad, 1);
-        rightDrive = new Axis(gamePad, 5);
-        turretRot = new Axis(gamePad, 4);       // Neg = CW, Pos = CCW
+        leftDrive.setAxis(gamePad, 1);
+        rightDrive.setAxis(gamePad, 5);
+        turretRot.setAxis(gamePad, 4);       // Neg = CW, Pos = CCW
 
         // Turret buttons
-        shooterRun = new Button(gamePad, 6);
-        shooterStop = new Button(gamePad, 9);
-        turretCW = new Button(gamePad, 2);
-        turretCCW = new Button(gamePad, 3);
-        lifterUp = new Button(gamePad, 4);
-        lifterDn = new Button(gamePad, 1);
+        shooterRun.setButton(gamePad, 6);
+        shooterStop.setButton(gamePad, 9);
+        turretCW.setButton(gamePad, 2);
+        turretCCW.setButton(gamePad, 3);
+        lifterUp.setButton(gamePad, 4);
+        lifterDn.setButton(gamePad, 1);
 
-        turretJSDir = new Button(gamePad, 7);
-        turretSP = new Pov(gamePad, 0);
-        turretZero = new Button(gamePad, 8);
+        turretJSDir.setButton(gamePad, 7);
+        turretSP.setPov(gamePad, 0);
+        turretZero.setButton(gamePad, 8);
         }
 
     // ------------ One Joystick only -----------
@@ -172,20 +172,20 @@ public class JS_IO{
     private static void CaseDefault(){
 
         // All stick axisesssss
-        leftDrive = new Axis(null, 0);
-        rightDrive = new Axis(null, 0);
-        turretRot = new Axis(null, 0);
+        leftDrive.setAxis(null, 0);
+        rightDrive.setAxis(null, 0);
+        turretRot.setAxis(null, 0);
 
         // Turret buttons
-        shooterRun = new Button(null, 0);
-        shooterStop = new Button(null, 0);
-        turretCW = new Button(null, 0);
-        turretCCW = new Button(null, 0);
-        lifterUp = new Button(null, 0);
-        lifterDn = new Button(null, 0);
+        shooterRun.setButton(null, 0);
+        shooterStop.setButton(null, 0);
+        turretCW.setButton(null, 0);
+        turretCCW.setButton(null, 0);
+        lifterUp.setButton(null, 0);
+        lifterDn.setButton(null, 0);
 
-        turretJSDir = new Button(null, 0);
-        turretSP = new Pov(null, -1);
-        turretZero = new Button(null, 0);
+        turretJSDir.setButton(null, 0);
+        turretSP.setPov(null, -1);
+        turretZero.setButton(null, 0);
     }
 }
