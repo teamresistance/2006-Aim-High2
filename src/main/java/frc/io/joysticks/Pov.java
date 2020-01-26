@@ -1,4 +1,4 @@
-package frc.io.js_btns;
+package frc.io.joysticks;
 /*
 Original Author: Sherya
 Rewite Author: Jim Hofmann
@@ -11,7 +11,7 @@ TODO: more testing.  maybe add an array handler?
 Desc: Allows use of various joystick/gamepad configurations.
 Constructor get JS_ID and povID.  But povID is not needed.  However, if it needs to pass
 a default (povID may not exist for some combinations) then in povID pass -1 for no press,
-and a pov value + 1000.  IE., 1000=>0, 1090=>90, 1180=>180, ... , 1315=>315.
+and a pov value 0, 45, ... 315.
 */
 
 import edu.wpi.first.wpilibj.Joystick;
@@ -49,7 +49,7 @@ public class Pov{
 		joystick = injoystick;
 		povID = inpovID;
 		exists = joystick != null;
-		existDflt = inpovID;		// null js, use pov default
+		existDflt = povID < 0 ? -1 : inpovID - (inpovID % 45);		// null js, use pov default
 	}
 
 	// get POV value
@@ -59,7 +59,8 @@ public class Pov{
 
 	// test POV match
 	public boolean equals( int test ){ return test == get(); }
-	public boolean isNone(){ return -1 > get(); }
+	public boolean isNone(){ return get() < 0; }
+	public boolean isPressed(){ return get() > 0; }
 	public boolean is0(){ return 0 == get(); }
 	public boolean is45(){ return 45 == get(); }
 	public boolean is90(){ return 90 == get(); }

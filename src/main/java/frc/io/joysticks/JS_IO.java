@@ -20,9 +20,9 @@ Desc: Reads joystick (gamePad) values.  Can be used for different stick configur
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import frc.io.js_btns.Axis;
-import frc.io.js_btns.Button;
-import frc.io.js_btns.Pov;
+import frc.io.joysticks.Axis;
+import frc.io.joysticks.Button;
+import frc.io.joysticks.Pov;
 
 //Declares all joysticks, buttons, axis & pov's.
 public class JS_IO{

@@ -1,4 +1,4 @@
-package frc.io.js_btns;
+package frc.io.joysticks;
 /*
 Original Author: Sherya
 Rewite Author: Jim Hofmann

@@ -51,6 +51,7 @@ public class Shooter {
     public static void init() {
         SmartDashboard.putNumber("Shooter Spd", shooterPct);
         SmartDashboard.putNumber("Shtr Idle Spd", shtrIdlePct);
+        SmartDashboard.putNumber("Shooter State", state);
         shooter.setSelectedSensorPosition(0);
         cmdUpdate(0.0);
         state = 0;
@@ -98,6 +99,7 @@ public class Shooter {
     private static void sdbUpdate(){
         shooterPct = SmartDashboard.getNumber("Shooter Spd", shooterPct);
         shtrIdlePct = SmartDashboard.getNumber("Shtr Idle Spd", shtrIdlePct);
+        SmartDashboard.putNumber("Shooter State", state);
         SmartDashboard.putNumber("encoder pos", shooter.getSelectedSensorPosition());
         SmartDashboard.putNumber("encoder velocity", shooter.getSelectedSensorVelocity());
     }

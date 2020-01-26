@@ -52,7 +52,7 @@ public class Turret {
     // I am the determinator
     private static void determ(){
         if(JS_IO.turretJSDir.get()) state = 1;
-        if(JS_IO.turretSP.isNone()) state = 2; // If POV pressed switch to POV SP
+        if(!JS_IO.turretSP.isNone()) state = 2; // If POV pressed switch to POV SP
         if(JS_IO.turretZero.get()) state = 3;
     }
 
