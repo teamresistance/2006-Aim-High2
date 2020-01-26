@@ -28,6 +28,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         IO.init();
+        LL_IO.init();
         JS_IO.init();
         Shooter.init();
         Turret.init();

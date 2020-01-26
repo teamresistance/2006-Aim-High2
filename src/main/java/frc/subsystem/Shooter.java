@@ -40,6 +40,12 @@ public class Shooter {
     private static double shooterPct = -0.7;
     private static double shtrIdlePct = -0.3;
 
+    public static double kP = 0;
+    public static double kI = 0;
+    public static double kD = 0;
+    public static double kF = 0;
+    public static double setpoint = 0;
+
     private static int state;
     private static int prvState;
 
@@ -49,12 +55,28 @@ public class Shooter {
     }
 
     public static void init() {
+        shooter.enableVoltageCompensation(true);
+        shooter.configVoltageCompSaturation(12,0);
+        shooter.configVoltageMeasurementFilter(32,0);
+        
         SmartDashboard.putNumber("Shooter Spd", shooterPct);
         SmartDashboard.putNumber("Shtr Idle Spd", shtrIdlePct);
         SmartDashboard.putNumber("Shooter State", state);
         shooter.setSelectedSensorPosition(0);
-        cmdUpdate(0.0);
+        cmdUpdate(0.0, false);
         state = 0;
+
+        SmartDashboard.putNumber("kP", kP);
+        SmartDashboard.putNumber("kI", kI);
+        SmartDashboard.putNumber("kD", kD);
+        SmartDashboard.putNumber("kF", kF);
+        SmartDashboard.putNumber("setpoint", setpoint);
+
+
+     //   shooter.config_kP(0, kP);
+      //  shooter.config_kI(0, kI);
+      //  shooter.config_kD(0, kD);
+ 
     }
 
     // I am the determinator
@@ -65,6 +87,9 @@ public class Shooter {
             state = 0;
         if (JS_IO.shooterTest.get())
             state = 4;
+        if(JS_IO.shooterReset.get())
+            state = 0;
+            shooter.setSelectedSensorPosition(0,0,0);
     }
 
     public static void update() {
@@ -74,27 +99,32 @@ public class Shooter {
         // cmd update( shooter speed )
         switch (state) {
         case 0: // Default, mtr=0.0
-            cmdUpdate(0.0);
+            cmdUpdate(0.0, false);
             prvState = state;
             break;
         case 1: // Shoot at default speed
-            cmdUpdate(shooterPct);
+            cmdUpdate(shooterPct, false);
             prvState = state;
             if (!JS_IO.shooterRun.get())
                 state = 3;
             break;
         case 2: // Shooter slow, bump to compensate
-            cmdUpdate(1);
+            cmdUpdate(1, false);
             prvState = state;
             break;
         case 3: // Shooter idle after shooting once
-            cmdUpdate(shtrIdlePct);
+            cmdUpdate(shtrIdlePct, false);
             prvState = state;
             break;
         case 4: // PID control
-
+            //cmdUpdate(((setpoint * 47 ) / 600), true);
+            
+            cmdUpdate(setpoint, true);
+            //shooter.set(ControlMode.Velocity, 200);
+            prvState = state;
+            break;
         default: // Default, mtr=0.0
-            cmdUpdate(0.0);
+            cmdUpdate(0.0, false);
             prvState = state;
             System.out.println("Bad Shooter state - " + state);
             break;
@@ -107,12 +137,24 @@ public class Shooter {
         shtrIdlePct = SmartDashboard.getNumber("Shtr Idle Spd", shtrIdlePct);
         SmartDashboard.putNumber("Shooter State", state);
         SmartDashboard.putNumber("encoder pos", shooter.getSelectedSensorPosition());
-        SmartDashboard.putNumber("encoder velocity", shooter.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("enc velocity", shooter.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("RPM", (shooter.getSelectedSensorVelocity() * 600) / 47);
+
+        setpoint = SmartDashboard.getNumber("setpoint", setpoint);
+        kP = SmartDashboard.getNumber("kP", kP);
+        kI = SmartDashboard.getNumber("kI", kI);
+        kD = SmartDashboard.getNumber("kD", kD);
+        kF = SmartDashboard.getNumber("kF", kF);
+        shooter.config_kF(0, kF);
+        shooter.config_kP(0, kP);
     }
 
     // Send commands to shooter motor
-    private static void cmdUpdate(double spd) {
-        shooter.set(ControlMode.PercentOutput, spd);
+    private static void cmdUpdate(double spd, boolean controlWithPID) {
+        if (controlWithPID)
+            shooter.set(ControlMode.Velocity, spd);
+        else
+            shooter.set(ControlMode.PercentOutput, spd);
         SmartDashboard.putNumber("Shtr Cmd Spd", spd);
     }
 

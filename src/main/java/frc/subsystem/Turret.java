@@ -57,6 +57,8 @@ public class Turret {
             state = 2; // If POV pressed switch to POV SP
         if (JS_IO.turretZero.get())
             state = 3;
+        // if(JS_IO.llControl.get())
+        //     state = 4;
     }
 
     public static void update() {
@@ -86,6 +88,8 @@ public class Turret {
             cmdUpdate(propCtl(turretSP, turretFB));
             prvState = state;
             break;
+        case 4: //limelight control
+            
         default: // mtr off
             cmdUpdate(0.0);
             prvState = state;
@@ -144,5 +148,12 @@ public class Turret {
 
     public static boolean isAtSpd() {
         return true;
+    }
+
+
+    private void limeFind(){
+    
+        
+        
     }
 }

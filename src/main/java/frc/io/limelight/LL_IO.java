@@ -1,5 +1,7 @@
 package frc.io.limelight;
 
+import com.fasterxml.jackson.core.StreamWriteFeature;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
@@ -7,12 +9,18 @@ import frc.io.hdw_io.IO;
 public class LL_IO {
 
     private static NetworkTable limeTable = IO.limelight;
-    private static int ledmode, cammode, pipeline;
+    private static double ledmode = 0, cammode = 0, pipeline = 0;
+
+    public static void init() {
+        SmartDashboard.putNumber("led mode", ledmode);
+        SmartDashboard.putNumber("cam mode", cammode);
+        SmartDashboard.putNumber("pipeline", pipeline);
+    }
 
     public static boolean llHasTarget() {
         double valid = limeTable.getEntry("tv").getDouble(0);
 
-        if (valid == 1) {
+        if (valid == 1.0) {
             return true;
         } else {
             return false;
@@ -32,17 +40,17 @@ public class LL_IO {
     }
 
     //default of current pipeline (0), off (1), blinking? (2), on (3)
-    public static void setLED(int choice) {
-        limeTable.getEntry("ledMode").setNumber(choice);
+    public static void setLED() {
+        limeTable.getEntry("ledMode").setNumber(ledmode);
     }
 
     //set vision (0) or driver mode (1)
-    public static void setCamMode (int choice) {
-        limeTable.getEntry("camMode").setNumber(choice);
+    public static void setCamMode () {
+        limeTable.getEntry("camMode").setNumber(cammode);
     }
 
-    public static void setPipeline(int choice) {
-        limeTable.getEntry("pipeline").setNumber(choice);
+    public static void setPipeline() {
+        limeTable.getEntry("pipeline").setNumber(pipeline);
     }
 
     public static void sdbUpdate() {
@@ -50,9 +58,9 @@ public class LL_IO {
         SmartDashboard.putNumber("limelight y offset", getLLY());
         SmartDashboard.putNumber("limelight percent area", getLLArea() * 100);
 
-        SmartDashboard.getNumber("led mode", ledmode);
-        SmartDashboard.getNumber("cam mode", cammode);
-        SmartDashboard.getNumber("pipeline", pipeline);
+        ledmode = SmartDashboard.getNumber("led mode", ledmode);
+        cammode = SmartDashboard.getNumber("cam mode", cammode);
+        pipeline = SmartDashboard.getNumber("pipeline", pipeline);
     }
 
 }
