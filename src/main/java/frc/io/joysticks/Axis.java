@@ -1,4 +1,4 @@
-package frc.io.js_btns;
+package frc.io.joysticks;
 /*
 Original Author: Sherya
 Rewite Author: Jim Hofmann
@@ -25,11 +25,11 @@ public class Axis{
 	
 	// Constructor, normal
 	// Exists muxed with axisID, if GT 100 (LT 0) does not exist
-	public Axis(Joystick joystick, int axisID) {
-		this.joystick = joystick;
-		this.axisID = axisID;
-		this.exists = joystick != null;
-		this.exDefault = (axisID % 100)/10.0;	// get last 2 digits then divide by 10, 110=>1.0
+	public Axis(Joystick injoystick, int inaxisID) {
+		joystick = injoystick;
+		axisID = inaxisID;
+		exists = joystick != null;
+		exDefault = (inaxisID % 100)/10.0;	// get last 2 digits then divide by 10, 110=>1.0
 	}
 
 	// Constructor, defaults set to does not exist & 0.0
@@ -42,6 +42,14 @@ public class Axis{
 	public Axis(double exDefault) {
 		this.exists = false;
 		this.exDefault = exDefault;
+	}
+
+	// assign a new joystick & button
+	public void setAxis(Joystick injoystick, int inAxisID){
+		joystick = injoystick;
+		axisID = inAxisID;
+		exists = joystick != null;
+		exDefault = (axisID % 100)/10.0;	// get last 2 digits then divide by 10, 110=>1.0
 	}
 
 	// get the axis value

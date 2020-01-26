@@ -37,53 +37,64 @@ import frc.util.timers.OnOffDly;
 public class Shooter {
     private static TalonSRX shooter = IO.shooter;
 
-    private static double shooterPct = 0.7;
+    private static double shooterPct = -0.7;
+    private static double shtrIdlePct = -0.3;
 
     private static int state;
     private static int prvState;
 
-    //Constructor
+    // Constructor
     public Shooter() {
         init();
     }
 
     public static void init() {
         SmartDashboard.putNumber("Shooter Spd", shooterPct);
+        SmartDashboard.putNumber("Shtr Idle Spd", shtrIdlePct);
+        SmartDashboard.putNumber("Shooter State", state);
+        shooter.setSelectedSensorPosition(0);
         cmdUpdate(0.0);
         state = 0;
     }
 
     // I am the determinator
-    private static void determ(){
-        if(JS_IO.shooterRun.get()) state = 1;
-        if(JS_IO.shooterStop.get()) state = 0;
+    private static void determ() {
+        if (JS_IO.shooterRun.get())
+            state = 1;
+        if (JS_IO.shooterStop.get())
+            state = 0;
+        if (JS_IO.shooterTest.get())
+            state = 4;
     }
 
     public static void update() {
         sdbUpdate();
         determ();
-        //------------- Main State Machine --------------
+        // ------------- Main State Machine --------------
         // cmd update( shooter speed )
-        switch(state){
+        switch (state) {
         case 0: // Default, mtr=0.0
-            cmdUpdate( 0.0 );
+            cmdUpdate(0.0);
             prvState = state;
             break;
-        case 1: //Shoot at default speed
-            cmdUpdate( shooterPct );
+        case 1: // Shoot at default speed
+            cmdUpdate(shooterPct);
             prvState = state;
-            if(!JS_IO.shooterRun.get()) state = 3;
+            if (!JS_IO.shooterRun.get())
+                state = 3;
             break;
         case 2: // Shooter slow, bump to compensate
-            cmdUpdate( 100.0 );
+            cmdUpdate(1);
             prvState = state;
             break;
         case 3: // Shooter idle after shooting once
-            cmdUpdate( 0.3 );
+            cmdUpdate(shtrIdlePct);
             prvState = state;
             break;
+        case 4: // PID control
+
         default: // Default, mtr=0.0
-            cmdUpdate( 0.0 );
+            cmdUpdate(0.0);
             prvState = state;
             System.out.println("Bad Shooter state - " + state);
             break;
@@ -91,22 +102,27 @@ public class Shooter {
     }
 
     // Smartdashboard shtuff
-    private static void sdbUpdate(){
-        shooterPct = SmartDashboard.getNumber("Shoot Spd", 0.7);
+    private static void sdbUpdate() {
+        shooterPct = SmartDashboard.getNumber("Shooter Spd", shooterPct);
+        shtrIdlePct = SmartDashboard.getNumber("Shtr Idle Spd", shtrIdlePct);
+        SmartDashboard.putNumber("Shooter State", state);
+        SmartDashboard.putNumber("encoder pos", shooter.getSelectedSensorPosition());
+        SmartDashboard.putNumber("encoder velocity", shooter.getSelectedSensorVelocity());
     }
 
     // Send commands to shooter motor
-    private static void cmdUpdate(double spd){
+    private static void cmdUpdate(double spd) {
         shooter.set(ControlMode.PercentOutput, spd);
+        SmartDashboard.putNumber("Shtr Cmd Spd", spd);
     }
 
-    //Returns if motor is off.
-    public static boolean get(){
+    // Returns if motor is off.
+    public static boolean get() {
         return shooter.getMotorOutputPercent() < 0.1;
     }
 
     // TODO: Need to add code once we have the Talon encoder reading.
-    public static boolean isAtSpd(){
+    public static boolean isAtSpd() {
         return true;
     }
 }

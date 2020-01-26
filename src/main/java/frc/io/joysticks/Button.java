@@ -1,4 +1,4 @@
-package frc.io.js_btns;
+package frc.io.joysticks;
 /*
 Original Author: Sherya
 Rewite Author: Jim Hofmann
@@ -41,6 +41,14 @@ public class Button{
 	public Button(boolean exDefault) {
 		exists = false;
 		existDflt = exDefault;
+	}
+
+	// assign a new joystick & button
+	public void setButton(Joystick injoystick, int inbuttonID){
+		joystick = injoystick;
+		buttonID = inbuttonID;
+		exists = joystick != null;
+		existDflt = buttonID % 2 == 0 ? false : true;	// If even default true
 	}
 
 	// get current value
