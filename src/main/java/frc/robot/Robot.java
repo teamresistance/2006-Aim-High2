@@ -14,6 +14,7 @@ import frc.io.hdw_io.IO;
 import frc.io.hdw_io.TestColor1;
 import frc.io.hdw_io.TestColor2;
 import frc.io.joysticks.JS_IO;
+import frc.io.limelight.LL_IO;
 import frc.subsystem.Shooter;
 import frc.subsystem.Turret;
 import frc.subsystem.Lifter;
@@ -42,7 +43,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
-
+        LL_IO.sdbUpdate();
     }
 
     /**

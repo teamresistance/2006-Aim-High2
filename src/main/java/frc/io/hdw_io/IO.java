@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import edu.wpi.first.networktables.*;
+
 import frc.io.joysticks.JS_IO;
 
 import com.revrobotics.ColorSensorV3;
@@ -24,6 +26,9 @@ public class IO {
     // navX
     // public static NavX navX = new NavX();
     public static AHRS ahrs;
+
+    //Limelight
+    public static NetworkTable limelight = NetworkTableInstance.getDefault().getTable("limelight");
 
     // PDP
     public static PowerDistributionPanel pdp = new PowerDistributionPanel(1);

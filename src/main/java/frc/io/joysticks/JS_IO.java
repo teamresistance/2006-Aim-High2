@@ -44,6 +44,7 @@ public class JS_IO{
     // Turret buttons
     public static Button shooterRun = new Button();    // Run shooter (trigger) else idle
     public static Button shooterStop = new Button();   // Stop shooter
+    public static Button shooterTest = new Button();   // pid test button
     public static Button turretCW = new Button();      // Turn turret CW
     public static Button turretCCW = new Button();     // Turn turret CCW
     public static Button lifterUp = new Button();      // Run motor to lift balls
@@ -139,7 +140,8 @@ public class JS_IO{
 
         // Turret buttons
         shooterRun.setButton(gamePad, 6);
-        shooterStop.setButton(gamePad, 9);
+        shooterStop.setButton(gamePad, 5);
+        shooterTest.setButton(gamePad, 9);
         turretCW.setButton(gamePad, 2);
         turretCCW.setButton(gamePad, 3);
         lifterUp.setButton(gamePad, 4);
