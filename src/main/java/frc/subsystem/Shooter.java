@@ -145,8 +145,10 @@ public class Shooter {
         kI = SmartDashboard.getNumber("kI", kI);
         kD = SmartDashboard.getNumber("kD", kD);
         kF = SmartDashboard.getNumber("kF", kF);
-        shooter.config_kF(0, kF);
         shooter.config_kP(0, kP);
+        shooter.config_kI(0, kI);
+        shooter.config_kD(0, kD);
+        shooter.config_kF(0, kF);
     }
 
     // Send commands to shooter motor
