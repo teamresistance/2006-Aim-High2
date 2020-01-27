@@ -40,11 +40,11 @@ public class Shooter {
     private static double shooterPct = -0.7;
     private static double shtrIdlePct = -0.3;
 
-    public static double kP = 0;
-    public static double kI = 0;
-    public static double kD = 0;
-    public static double kF = 0;
-    public static double setpoint = 0;
+    public static double kP = 120;
+    public static double kI = 0.01;
+    public static double kD = 0.0;
+    public static double kF = 1.47;
+    public static double setpoint = 6300;
 
     private static int state;
     private static int prvState;

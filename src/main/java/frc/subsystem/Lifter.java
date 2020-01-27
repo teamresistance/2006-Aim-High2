@@ -27,7 +27,7 @@ import frc.util.timers.OnOffDly;
 public class Lifter {
     private static Victor lifter = IO.lifter;
 
-    private static double lifterPct = 0.7;
+    private static double lifterPct = 0.30;
 
     private static int state;
     private static int prvState;
