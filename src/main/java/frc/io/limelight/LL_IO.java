@@ -3,6 +3,7 @@ package frc.io.limelight;
 import com.fasterxml.jackson.core.StreamWriteFeature;
 
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
 
@@ -41,10 +42,11 @@ public class LL_IO {
 
     //default of current pipeline (0), off (1), blinking? (2), on (3)
     public static void setLED() {
-        limeTable.getEntry("ledMode").setNumber(ledmode);
+        // limeTable.getEntry("ledMode").setDouble(ledmode);
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(ledmode);
     }
 
-    //set vision (0) or driver mode (1)
+        //set vision (0) or driver mode (1)
     public static void setCamMode () {
         limeTable.getEntry("camMode").setNumber(cammode);
     }
@@ -61,6 +63,10 @@ public class LL_IO {
         ledmode = SmartDashboard.getNumber("led mode", ledmode);
         cammode = SmartDashboard.getNumber("cam mode", cammode);
         pipeline = SmartDashboard.getNumber("pipeline", pipeline);
+    }
+
+    public static void update(){
+        setLED();
     }
 
 }
