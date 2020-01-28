@@ -69,6 +69,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
         IO.update();
+        LL_IO.update();
         Shooter.update();
         Turret.update();
         Lifter.update();
