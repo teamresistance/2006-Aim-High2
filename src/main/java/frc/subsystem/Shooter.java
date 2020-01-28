@@ -44,7 +44,7 @@ public class Shooter {
     public static double kI = 0.01;
     public static double kD = 0.0;
     public static double kF = 1.47;
-    public static double setpoint = 6300;
+    public static double setpoint = -6200;
 
     private static int state;
     private static int prvState;
@@ -80,14 +80,17 @@ public class Shooter {
     }
 
     // I am the determinator
+    /*TODO: Suggest, GP6=ShtrRunPct, GP5=ShtrRunPID,
+     combine stop & reset=GP9.
+    */
     private static void determ() {
-        if (JS_IO.shooterRun.get())
+        if (JS_IO.shooterRun.get())     //GP6
             state = 1;
-        if (JS_IO.shooterStop.get())
+        if (JS_IO.shooterStop.get())    //GP5
             state = 0;
-        if (JS_IO.shooterTest.get())
+        if (JS_IO.shooterTest.get())    //GP10
             state = 4;
-        if(JS_IO.shooterReset.get())
+        if(JS_IO.shooterReset.get())    //GP9
             state = 0;
             shooter.setSelectedSensorPosition(0,0,0);
     }
@@ -96,7 +99,7 @@ public class Shooter {
         sdbUpdate();
         determ();
         // ------------- Main State Machine --------------
-        // cmd update( shooter speed )
+        // cmd update( shooter speed, ctl by rpm else pct)
         switch (state) {
         case 0: // Default, mtr=0.0
             cmdUpdate(0.0, false);
@@ -139,6 +142,7 @@ public class Shooter {
         SmartDashboard.putNumber("encoder pos", shooter.getSelectedSensorPosition());
         SmartDashboard.putNumber("enc velocity", shooter.getSelectedSensorVelocity());
         SmartDashboard.putNumber("RPM", (shooter.getSelectedSensorVelocity() * 600) / 47);
+        SmartDashboard.putNumber("MtrOutPct", (shooter.getMotorOutputPercent() * 600) / 47);
 
         setpoint = SmartDashboard.getNumber("setpoint", setpoint);
         kP = SmartDashboard.getNumber("kP", kP);
