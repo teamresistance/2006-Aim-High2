@@ -40,11 +40,11 @@ public class Shooter {
     private static double shooterPct = -0.7;
     private static double shtrIdlePct = -0.3;
 
-    public static double kP = 120;
-    public static double kI = 0.01;
+    public static double kP = 55;
+    public static double kI = 0.0;
     public static double kD = 0.0;
     public static double kF = 1.47;
-    public static double setpoint = -6200;
+    public static double setpoint = -415;
 
     private static int state;
     private static int prvState;
@@ -157,10 +157,12 @@ public class Shooter {
 
     // Send commands to shooter motor
     private static void cmdUpdate(double spd, boolean controlWithPID) {
-        if (controlWithPID)
+        if (controlWithPID){
             shooter.set(ControlMode.Velocity, spd);
-        else
+            System.out.println("Shtr Spd out - " + spd);
+        }else{
             shooter.set(ControlMode.PercentOutput, spd);
+        }
         SmartDashboard.putNumber("Shtr Cmd Spd", spd);
     }
 
