@@ -81,9 +81,6 @@ public class Shooter {
     }
 
     // I am the determinator
-    /*TODO: Suggest, GP6=ShtrRunPct, GP5=ShtrRunPID,
-     combine stop & reset=GP9.
-    */
     private static void determ() {
         if (JS_IO.shooterRun.get())     //GP6, Shoot or idle
             state = 1;
