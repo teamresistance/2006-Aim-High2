@@ -44,13 +44,13 @@ public class Shooter {
     private static double pct_SP = 0.7;
     private static double pctIdleSP = 0.3;
 
+    public static double rpm_SP = 5300.0;   //Negate motr spd to rotate correctly
+    public static double rpmIdleSP = 1000.0;
     public static double rpm_kP = 55;
     public static double rpm_kI = 0.0;
     public static double rpm_kD = 0.0;
     public static double rpm_kF = 1.47;
-    public static double rpm_SP = 5300.0;   //Negate motr spd to rotate correctly
     public static double rpm_FB = 0.0;      //Negate encoder to match motor rotation
-    public static double rpmIdleSP = 1000.0;
 
     private static int state;
     private static int prvState;
@@ -65,13 +65,16 @@ public class Shooter {
         shooter.configVoltageCompSaturation(12,0);
         shooter.configVoltageMeasurementFilter(32,0);
 
-        SmartDashboard.putBoolean("Ctl RPM", shtrCtlRPM);   //defaults to RPM
-        SmartDashboard.putNumber("Pct SP", pct_SP);
-        SmartDashboard.putNumber("Pct Idle Spd", pctIdleSP);
-        SmartDashboard.putNumber("Shooter State", state);
         shooter.setSelectedSensorPosition(0);
         cmdUpdate(0.0);
         state = 0;
+
+        SmartDashboard.putBoolean("Ctl RPM", shtrCtlRPM);   //defaults to RPM
+        SmartDashboard.putNumber("RPM SP", rpm_SP);
+        SmartDashboard.putNumber("RPM Idle Spd", rpmIdleSP);
+        SmartDashboard.putNumber("Pct SP", pct_SP);
+        SmartDashboard.putNumber("Pct Idle Spd", pctIdleSP);
+        SmartDashboard.putNumber("Shooter State", state);
 
         SmartDashboard.putNumber("RPM kP", rpm_kP);
         SmartDashboard.putNumber("RPM kI", rpm_kI);
@@ -123,16 +126,17 @@ public class Shooter {
 
     // Smartdashboard shtuff
     private static void sdbUpdate() {
-        pct_SP = SmartDashboard.getNumber("Shooter Spd", pct_SP);
-        pctIdleSP = SmartDashboard.getNumber("Shtr Idle Spd", pctIdleSP);
+        pct_SP = SmartDashboard.getNumber("Pct SP", pct_SP);
+        pctIdleSP = SmartDashboard.getNumber("Pct Idle Spd", pctIdleSP);
         rpm_FB = shooter.getSelectedSensorVelocity() * 600 / 47;
         SmartDashboard.putNumber("Shooter State", state);
-        SmartDashboard.putNumber("encoder pos", shooter.getSelectedSensorPosition());
+        SmartDashboard.putNumber("enc position", shooter.getSelectedSensorPosition());
         SmartDashboard.putNumber("enc velocity", shooter.getSelectedSensorVelocity());
         SmartDashboard.putNumber("RPM", rpm_FB);
         SmartDashboard.putNumber("MtrOutPct", (shooter.getMotorOutputPercent() * 600) / 47);    //???
 
         rpm_SP = SmartDashboard.getNumber("RMP SP", rpm_SP);
+        rpmIdleSP = SmartDashboard.getNumber("RMP Idle SP", rpmIdleSP);
         rpm_kP = SmartDashboard.getNumber("RMP kP", rpm_kP);
         rpm_kI = SmartDashboard.getNumber("RMP kI", rpm_kI);
         rpm_kD = SmartDashboard.getNumber("RMP kD", rpm_kD);
