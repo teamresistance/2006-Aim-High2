@@ -37,14 +37,15 @@ import frc.util.timers.OnOffDly;
 public class Shooter {
     private static TalonSRX shooter = IO.shooter;
 
-    private static double shooterPct = -0.7;
-    private static double shtrIdlePct = -0.3;
+    private static double pct_SP = 0.7;
+    private static double pctIdleSP = 0.3;
 
-    public static double kP = 55;
-    public static double kI = 0.0;
-    public static double kD = 0.0;
-    public static double kF = 1.47;
-    public static double setpoint = -415;
+    public static double rpm_kP = 55;
+    public static double rpm_kI = 0.0;
+    public static double rpm_kD = 0.0;
+    public static double rpm_kF = 1.47;
+    public static double rpm_SP = 5300.0;   //Negate motr spd to rotate correctly
+    public static double rpm_FB = 0.0;      //Negate encoder to match motor rotation
 
     private static int state;
     private static int prvState;
@@ -59,24 +60,18 @@ public class Shooter {
         shooter.configVoltageCompSaturation(12,0);
         shooter.configVoltageMeasurementFilter(32,0);
         
-        SmartDashboard.putNumber("Shooter Spd", shooterPct);
-        SmartDashboard.putNumber("Shtr Idle Spd", shtrIdlePct);
+        SmartDashboard.putNumber("Pct SP", pct_SP);
+        SmartDashboard.putNumber("Pct Idle Spd", pctIdleSP);
         SmartDashboard.putNumber("Shooter State", state);
         shooter.setSelectedSensorPosition(0);
         cmdUpdate(0.0, false);
         state = 0;
 
-        SmartDashboard.putNumber("kP", kP);
-        SmartDashboard.putNumber("kI", kI);
-        SmartDashboard.putNumber("kD", kD);
-        SmartDashboard.putNumber("kF", kF);
-        SmartDashboard.putNumber("setpoint", setpoint);
-
-
-     //   shooter.config_kP(0, kP);
-      //  shooter.config_kI(0, kI);
-      //  shooter.config_kD(0, kD);
- 
+        SmartDashboard.putNumber("RPM kP", rpm_kP);
+        SmartDashboard.putNumber("RPM kI", rpm_kI);
+        SmartDashboard.putNumber("RPM kD", rpm_kD);
+        SmartDashboard.putNumber("RPM kF", rpm_kF);
+        SmartDashboard.putNumber("RPM SP", rpm_SP);
     }
 
     // I am the determinator
@@ -105,25 +100,22 @@ public class Shooter {
             cmdUpdate(0.0, false);
             prvState = state;
             break;
-        case 1: // Shoot at default speed
-            cmdUpdate(shooterPct, false);
+        case 1: // Shoot at default percent speed
+            cmdUpdate(pct_SP, false);
             prvState = state;
             if (!JS_IO.shooterRun.get())
                 state = 3;
             break;
-        case 2: // Shooter slow, bump to compensate
-            cmdUpdate(1, false);
+        case 2: // Shooter slow, bump to 100% to compensate
+            cmdUpdate(1.0, false);
             prvState = state;
             break;
         case 3: // Shooter idle after shooting once
-            cmdUpdate(shtrIdlePct, false);
+            cmdUpdate(pctIdleSP, false);
             prvState = state;
             break;
         case 4: // PID control
-            //cmdUpdate(((setpoint * 47 ) / 600), true);
-            
-            cmdUpdate(setpoint, true);
-            //shooter.set(ControlMode.Velocity, 200);
+            cmdUpdate(rpm_SP, true);
             prvState = state;
             break;
         default: // Default, mtr=0.0
@@ -136,30 +128,30 @@ public class Shooter {
 
     // Smartdashboard shtuff
     private static void sdbUpdate() {
-        shooterPct = SmartDashboard.getNumber("Shooter Spd", shooterPct);
-        shtrIdlePct = SmartDashboard.getNumber("Shtr Idle Spd", shtrIdlePct);
+        pct_SP = SmartDashboard.getNumber("Shooter Spd", pct_SP);
+        pctIdleSP = SmartDashboard.getNumber("Shtr Idle Spd", pctIdleSP);
+        rpm_FB = shooter.getSelectedSensorVelocity() * 600 / 47;
         SmartDashboard.putNumber("Shooter State", state);
         SmartDashboard.putNumber("encoder pos", shooter.getSelectedSensorPosition());
         SmartDashboard.putNumber("enc velocity", shooter.getSelectedSensorVelocity());
-        SmartDashboard.putNumber("RPM", (shooter.getSelectedSensorVelocity() * 600) / 47);
-        SmartDashboard.putNumber("MtrOutPct", (shooter.getMotorOutputPercent() * 600) / 47);
+        SmartDashboard.putNumber("RPM", rpm_FB);
+        SmartDashboard.putNumber("MtrOutPct", (shooter.getMotorOutputPercent() * 600) / 47);    //???
 
-        setpoint = SmartDashboard.getNumber("setpoint", setpoint);
-        kP = SmartDashboard.getNumber("kP", kP);
-        kI = SmartDashboard.getNumber("kI", kI);
-        kD = SmartDashboard.getNumber("kD", kD);
-        kF = SmartDashboard.getNumber("kF", kF);
-        shooter.config_kP(0, kP);
-        shooter.config_kI(0, kI);
-        shooter.config_kD(0, kD);
-        shooter.config_kF(0, kF);
+        rpm_SP = SmartDashboard.getNumber("RMP SP", rpm_SP);
+        rpm_kP = SmartDashboard.getNumber("RMP kP", rpm_kP);
+        rpm_kI = SmartDashboard.getNumber("RMP kI", rpm_kI);
+        rpm_kD = SmartDashboard.getNumber("RMP kD", rpm_kD);
+        rpm_kF = SmartDashboard.getNumber("RMP kF", rpm_kF);
+        shooter.config_kP(0, rpm_kP);
+        shooter.config_kI(0, rpm_kI);
+        shooter.config_kD(0, rpm_kD);
+        shooter.config_kF(0, rpm_kF);
     }
 
     // Send commands to shooter motor
     private static void cmdUpdate(double spd, boolean controlWithPID) {
-        if (controlWithPID){
-            shooter.set(ControlMode.Velocity, spd);
-            System.out.println("Shtr Spd out - " + spd);
+        if (controlWithPID){    //Vel cmd must always be pos to rotate shooter correctly
+            shooter.set(ControlMode.Velocity, Math.abs(spd) * 47 / 600);
         } else {
             shooter.set(ControlMode.PercentOutput, spd);
         }
@@ -171,8 +163,10 @@ public class Shooter {
         return shooter.getMotorOutputPercent() < 0.1;
     }
 
-    // TODO: Need to add code once we have the Talon encoder reading.
+    // Chk rpm if state 4 use rpm else pct.  May need to add OnOffDly 
     public static boolean isAtSpd() {
-        return true;
+        if(state == 4)
+            return Math.abs(rpm_SP - rpm_FB) < 200; //rpm_DB
+        return Math.abs(shooter.getMotorOutputPercent() - pct_SP) < 0.2;    //pct db
     }
 }
