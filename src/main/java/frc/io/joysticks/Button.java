@@ -21,6 +21,8 @@ public class Button{
 	public int buttonID;
 	private boolean exists;
 	private boolean existDflt;
+
+	private boolean pressed = true;
 	
 	// Constructor, normal
 	// Exists muxed with axisID, if GT 100 (LT 0) does not exist
@@ -63,11 +65,13 @@ public class Button{
 
 	// inverse of the current value
 	public boolean isUp() {
-		return exists ? !joystick.getRawButton(buttonID) : !existDflt;
+		return exists ?  !joystick.getRawButton(buttonID) : !existDflt;
 	}
 
 	// returns true once when button pressed
 	public boolean onButtonPressed() {
+		pressed = !pressed;
+		System.out.println(pressed);
 		return exists ? joystick.getRawButtonPressed(buttonID) : existDflt;
 	}
 

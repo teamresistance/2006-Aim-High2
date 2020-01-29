@@ -160,7 +160,7 @@ public class Shooter {
         if (controlWithPID){
             shooter.set(ControlMode.Velocity, spd);
             System.out.println("Shtr Spd out - " + spd);
-        }else{
+        } else {
             shooter.set(ControlMode.PercentOutput, spd);
         }
         SmartDashboard.putNumber("Shtr Cmd Spd", spd);

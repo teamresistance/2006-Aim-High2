@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.Victor;
 
 import frc.io.hdw_io.IO;
 import frc.io.joysticks.JS_IO;
+import frc.io.limelight.LL_IO;
 import frc.util.BotMath;
 import frc.util.timers.OnDly;
 import frc.util.timers.OnOffDly;
@@ -39,12 +40,15 @@ public class Turret {
     private static int state;
     private static int prvState;
 
+    private static int llState = 0;
+
     // Constructor
     public Turret() {
         init();
     }
 
     public static void init() {
+        llState = 0;
         cmdUpdate(0.0);
         state = 0;
     }
@@ -57,8 +61,8 @@ public class Turret {
             state = 2; // If POV pressed switch to POV SP
         if (JS_IO.turretZero.get())
             state = 3;
-        // if(JS_IO.llControl.get())
-        //     state = 4;
+        if (JS_IO.llControl.get())
+            state = 4;
     }
 
     public static void update() {
@@ -88,8 +92,19 @@ public class Turret {
             cmdUpdate(propCtl(turretSP, turretFB));
             prvState = state;
             break;
-        case 4: //limelight control
-            
+        case 4: // limelight control
+            if (LL_IO.llHasTarget()) {
+                if (LL_IO.getLLX() > 3 ) {
+                    cmdUpdate(-0.5);
+                } else if (LL_IO.getLLX() < -3) {
+                    cmdUpdate(0.5);
+                } else if (LL_IO.getLLX() < 3 && LL_IO.getLLX() > -3) {
+                    cmdUpdate(0);
+                }
+            } else {
+                cmdUpdate(0);
+            }
+            break;
         default: // mtr off
             cmdUpdate(0.0);
             prvState = state;
@@ -150,10 +165,9 @@ public class Turret {
         return true;
     }
 
+    private static double limelightCtl() {
 
-    private void limeFind(){
-    
-        
-        
+        return 69;
     }
+
 }

@@ -3,16 +3,20 @@ package frc.io.limelight;
 import com.fasterxml.jackson.core.StreamWriteFeature;
 
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
 
 public class LL_IO {
 
-    private static NetworkTable limeTable = IO.limelight;
+    private static NetworkTable limeTable = NetworkTableInstance.getDefault().getTable("limelight");
     private static double ledmode = 0, cammode = 0, pipeline = 0;
 
     public static void init() {
+
+        limeTable = NetworkTableInstance.getDefault().getTable("limelight");
+
         SmartDashboard.putNumber("led mode", ledmode);
         SmartDashboard.putNumber("cam mode", cammode);
         SmartDashboard.putNumber("pipeline", pipeline);
@@ -29,6 +33,7 @@ public class LL_IO {
     }
 
     public static double getLLX() {
+    
         return limeTable.getEntry("tx").getDouble(0);
     }
 
@@ -40,14 +45,13 @@ public class LL_IO {
         return limeTable.getEntry("ta").getDouble(0);
     }
 
-    //default of current pipeline (0), off (1), blinking? (2), on (3)
+    // default of current pipeline (0), off (1), blinking? (2), on (3)
     public static void setLED() {
-        // limeTable.getEntry("ledMode").setDouble(ledmode);
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(ledmode);
+         limeTable.getEntry("ledMode").setNumber(ledmode);
     }
 
-        //set vision (0) or driver mode (1)
-    public static void setCamMode () {
+    // set vision (0) or driver mode (1)
+    public static void setCamMode() {
         limeTable.getEntry("camMode").setNumber(cammode);
     }
 
@@ -56,17 +60,19 @@ public class LL_IO {
     }
 
     public static void sdbUpdate() {
+        getLLX();
+        SmartDashboard.putBoolean("ll has target", llHasTarget());
         SmartDashboard.putNumber("limelight x offset", getLLX());
         SmartDashboard.putNumber("limelight y offset", getLLY());
         SmartDashboard.putNumber("limelight percent area", getLLArea() * 100);
 
         ledmode = SmartDashboard.getNumber("led mode", ledmode);
-        cammode = SmartDashboard.getNumber("cam mode", cammode);
-        pipeline = SmartDashboard.getNumber("pipeline", pipeline);
-    }
-
-    public static void update(){
         setLED();
+        cammode = SmartDashboard.getNumber("cam mode", cammode);
+        setCamMode();
+        pipeline = SmartDashboard.getNumber("pipeline", pipeline);
+        setPipeline();
+
     }
 
 }

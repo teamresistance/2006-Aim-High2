@@ -25,92 +25,92 @@ import frc.io.joysticks.Button;
 import frc.io.joysticks.Pov;
 
 //Declares all joysticks, buttons, axis & pov's.
-public class JS_IO{
-    public static int jsConfig = 1;     //0=Joysticks, 1=left Joystick only, 2=gamePad only
-                                        //3=Mixed LJS & GP, 4=Nintendo Pad
+public class JS_IO {
+    public static int jsConfig = 1; // 0=Joysticks, 1=left Joystick only, 2=gamePad only
+                                    // 3=Mixed LJS & GP, 4=Nintendo Pad
     // Declare all possible Joysticks
-    public static Joystick leftJoystick = new Joystick(0);      // Left JS
-    public static Joystick rightJoystick = new Joystick(1);     // Right JS
-    public static Joystick coJoystick = new Joystick(2);        // Co-Dvr JS
-    public static Joystick gamePad = new Joystick(3);           // Normal mode only (not Dual Trigger mode)
-    public static Joystick neoPad = new Joystick(4);            // Nintendo style gamepad
-    public static Joystick arJS[] = {leftJoystick,rightJoystick, coJoystick,
-                                     gamePad, neoPad};
+    public static Joystick leftJoystick = new Joystick(0); // Left JS
+    public static Joystick rightJoystick = new Joystick(1); // Right JS
+    public static Joystick coJoystick = new Joystick(2); // Co-Dvr JS
+    public static Joystick gamePad = new Joystick(3); // Normal mode only (not Dual Trigger mode)
+    public static Joystick neoPad = new Joystick(4); // Nintendo style gamepad
+    public static Joystick arJS[] = { leftJoystick, rightJoystick, coJoystick, gamePad, neoPad };
     // Declare all stick control
-    public static Axis leftDrive = new Axis();     // Left Drive
-    public static Axis rightDrive = new Axis();    // Right Drive
-    public static Axis turretRot = new Axis();     // Rotate turret
+    public static Axis leftDrive = new Axis(); // Left Drive
+    public static Axis rightDrive = new Axis(); // Right Drive
+    public static Axis turretRot = new Axis(); // Rotate turret
 
     // Turret buttons
-    public static Button shooterRun = new Button();    // Run shooter (trigger) else idle
-    public static Button shooterStop = new Button();   // Stop shooter
-    public static Button shooterTest = new Button();   // pid test button
+    public static Button shooterRun = new Button(); // Run shooter (trigger) else idle
+    public static Button shooterStop = new Button(); // Stop shooter
+    public static Button shooterTest = new Button(); // pid test button
     public static Button shooterReset = new Button();
+    public static Button doesNothing = new Button();
 
     public static Button llControl = new Button();
-    public static Button turretCW = new Button();      // Turn turret CW
-    public static Button turretCCW = new Button();     // Turn turret CCW
-    public static Button lifterUp = new Button();      // Run motor to lift balls
-    public static Button lifterDn = new Button();      // Run motor to lower balls
-    public static Button turretJSDir = new Button();   // Directly rotate with JS
-    public static Pov turretSP = new Pov();         // Rotate by Pot SP with JS 0/45/90/.../315
-    public static Button turretZero = new Button();    // Rotate forward
+    public static Button turretCW = new Button(); // Turn turret CW
+    public static Button turretCCW = new Button(); // Turn turret CCW
+    public static Button lifterUp = new Button(); // Run motor to lift balls
+    public static Button lifterDn = new Button(); // Run motor to lower balls
+    public static Button turretJSDir = new Button(); // Directly rotate with JS
+    public static Pov turretSP = new Pov(); // Rotate by Pot SP with JS 0/45/90/.../315
+    public static Button turretZero = new Button(); // Rotate forward
 
     // Shooter testing only on Norm3JS
-    //public static Button ptrShtrDiag.set(coJoystick, 11);
+    // public static Button ptrShtrDiag.set(coJoystick, 11);
 
     // Constructor
-    public JS_IO(){
+    public JS_IO() {
         init();
     }
 
-    public static void init(){
+    public static void init() {
         SmartDashboard.putNumber("JS_Config", jsConfig);
         configJS();
     }
 
-    //can put this under a button press
-    public static void update() {   //Chk for Joystick configuration
-        if(jsConfig != SmartDashboard.getNumber("JS_Config", 0)){
-            jsConfig = (int)SmartDashboard.getNumber("JS_Config", 0);
+    // can put this under a button press
+    public static void update() { // Chk for Joystick configuration
+        if (jsConfig != SmartDashboard.getNumber("JS_Config", 0)) {
+            jsConfig = (int) SmartDashboard.getNumber("JS_Config", 0);
             configJS();
         }
     }
 
-    public static void configJS() {   //Default Joystick else as gamepad
-        jsConfig = (int)SmartDashboard.getNumber("JS_Config", 0);
+    public static void configJS() { // Default Joystick else as gamepad
+        jsConfig = (int) SmartDashboard.getNumber("JS_Config", 0);
 
-        switch( jsConfig ){
-            case 0:     // Normal 3 joystick config
-                Norm3JS();
+        switch (jsConfig) {
+        case 0: // Normal 3 joystick config
+            Norm3JS();
             break;
 
-            case 1:     // Gamepad only
-                A_GP();
+        case 1: // Gamepad only
+            A_GP();
             break;
 
-            case 2:     // Left joystick only
-                A_JS();
+        case 2: // Left joystick only
+            A_JS();
             break;
 
-            case 3:     // 1 Joystick & Gamepad
-                JS_GP();
+        case 3: // 1 Joystick & Gamepad
+            JS_GP();
 
-            case 4:     // Nintendo Gamepad
-                NeoGP();
+        case 4: // Nintendo Gamepad
+            NeoGP();
             break;
 
-            default:    // Bad assignment
-                CaseDefault();
+        default: // Bad assignment
+            CaseDefault();
             break;
 
         }
     }
 
-    //================ Controller actions ================
+    // ================ Controller actions ================
 
     // ----------- Normal 3 Joysticks -------------
-    private static void Norm3JS(){
+    private static void Norm3JS() {
 
         // All stick axisesssss
         leftDrive = new Axis(leftJoystick, 1);
@@ -130,16 +130,16 @@ public class JS_IO{
         turretZero.setButton(coJoystick, 9);
 
         // Shooter testing only on Norm3JS
-     //   ptrShtrDiag.setButton(coJoystick, 11);
+        // ptrShtrDiag.setButton(coJoystick, 11);
     }
 
     // ----- gamePad only --------
-    private static void A_GP(){
+    private static void A_GP() {
 
         // All stick axisesssss
         leftDrive.setAxis(gamePad, 1);
         rightDrive.setAxis(gamePad, 5);
-        turretRot.setAxis(gamePad, 4);       // Neg = CW, Pos = CCW
+        turretRot.setAxis(gamePad, 4); // Neg = CW, Pos = CCW
 
         // Turret buttons
         shooterRun.setButton(gamePad, 6);
@@ -147,37 +147,40 @@ public class JS_IO{
         shooterTest.setButton(gamePad, 10);
         shooterReset.setButton(gamePad, 9);
 
-        
+        llControl.setButton(gamePad, 3);
+
         turretCW.setButton(gamePad, 2);
         turretCCW.setButton(gamePad, 3);
         lifterUp.setButton(gamePad, 4);
         lifterDn.setButton(gamePad, 1);
 
+        doesNothing.setButton(gamePad, 2);
+
         turretJSDir.setButton(gamePad, 7);
         turretSP.setPov(gamePad, 0);
         turretZero.setButton(gamePad, 8);
-        }
+    }
 
     // ------------ One Joystick only -----------
-    private static void A_JS(){
+    private static void A_JS() {
 
-        CaseDefault();  // Too lazy to assign buttons
+        CaseDefault(); // Too lazy to assign buttons
     }
 
     // ----- Mixed Left Joystick & gamePad only --------
-    private static void JS_GP(){
+    private static void JS_GP() {
 
-        A_GP();     // Too lazy to assign buttons
+        A_GP(); // Too lazy to assign buttons
     }
 
     // ----- Nintendo gamePad only --------
-    private static void NeoGP(){
+    private static void NeoGP() {
 
-        CaseDefault();  // Not enough buttons to use this style
+        CaseDefault(); // Not enough buttons to use this style
     }
 
     // ----------- Case Default -----------------
-    private static void CaseDefault(){
+    private static void CaseDefault() {
 
         // All stick axisesssss
         leftDrive.setAxis(null, 0);
