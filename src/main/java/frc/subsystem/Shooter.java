@@ -25,6 +25,9 @@ method is to bump the speed up until back to setpoint (or presently, just some t
 */
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
+import javax.lang.model.util.ElementScanner6;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -37,6 +40,7 @@ import frc.util.timers.OnOffDly;
 public class Shooter {
     private static TalonSRX shooter = IO.shooter;
 
+    private static boolean shtrCtlRPM = true;
     private static double pct_SP = 0.7;
     private static double pctIdleSP = 0.3;
 
@@ -46,6 +50,7 @@ public class Shooter {
     public static double rpm_kF = 1.47;
     public static double rpm_SP = 5300.0;   //Negate motr spd to rotate correctly
     public static double rpm_FB = 0.0;      //Negate encoder to match motor rotation
+    public static double rpmIdleSP = 1000.0;
 
     private static int state;
     private static int prvState;
@@ -59,12 +64,13 @@ public class Shooter {
         shooter.enableVoltageCompensation(true);
         shooter.configVoltageCompSaturation(12,0);
         shooter.configVoltageMeasurementFilter(32,0);
-        
+
+        SmartDashboard.putBoolean("Ctl RPM", shtrCtlRPM);   //defaults to RPM
         SmartDashboard.putNumber("Pct SP", pct_SP);
         SmartDashboard.putNumber("Pct Idle Spd", pctIdleSP);
         SmartDashboard.putNumber("Shooter State", state);
         shooter.setSelectedSensorPosition(0);
-        cmdUpdate(0.0, false);
+        cmdUpdate(0.0);
         state = 0;
 
         SmartDashboard.putNumber("RPM kP", rpm_kP);
@@ -79,13 +85,9 @@ public class Shooter {
      combine stop & reset=GP9.
     */
     private static void determ() {
-        if (JS_IO.shooterRun.get())     //GP6
+        if (JS_IO.shooterRun.get())     //GP6, Shoot or idle
             state = 1;
-        if (JS_IO.shooterStop.get())    //GP5
-            state = 0;
-        if (JS_IO.shooterTest.get())    //GP10
-            state = 4;
-        if(JS_IO.shooterReset.get())    //GP9
+        if (JS_IO.shooterStop.get())    //GP5, Stop
             state = 0;
             shooter.setSelectedSensorPosition(0,0,0);
     }
@@ -97,29 +99,25 @@ public class Shooter {
         // cmd update( shooter speed, ctl by rpm else pct)
         switch (state) {
         case 0: // Default, mtr=0.0
-            cmdUpdate(0.0, false);
+            cmdUpdate(0.0);
             prvState = state;
             break;
-        case 1: // Shoot at default percent speed
-            cmdUpdate(pct_SP, false);
+        case 1: // Shoot at default rpm else percent
+            cmdUpdate( shtrCtlRPM ? rpm_SP : pct_SP );
             prvState = state;
             if (!JS_IO.shooterRun.get())
                 state = 3;
             break;
         case 2: // Shooter slow, bump to 100% to compensate
-            cmdUpdate(1.0, false);
+            cmdUpdate( shtrCtlRPM ? 6800.0 : 1.0 );
             prvState = state;
             break;
         case 3: // Shooter idle after shooting once
-            cmdUpdate(pctIdleSP, false);
-            prvState = state;
-            break;
-        case 4: // PID control
-            cmdUpdate(rpm_SP, true);
+            cmdUpdate( shtrCtlRPM ? rpmIdleSP : pctIdleSP );
             prvState = state;
             break;
         default: // Default, mtr=0.0
-            cmdUpdate(0.0, false);
+            cmdUpdate( 0.0 );
             prvState = state;
             System.out.println("Bad Shooter state - " + state);
             break;
@@ -149,11 +147,11 @@ public class Shooter {
     }
 
     // Send commands to shooter motor
-    private static void cmdUpdate(double spd, boolean controlWithPID) {
-        if (controlWithPID){    //Vel cmd must always be pos to rotate shooter correctly
+    private static void cmdUpdate(double spd) {
+        if (shtrCtlRPM){    //Cmd must always be pos to rotate shooter correctly
             shooter.set(ControlMode.Velocity, Math.abs(spd) * 47 / 600);
         } else {
-            shooter.set(ControlMode.PercentOutput, spd);
+            shooter.set(ControlMode.PercentOutput, Math.abs(spd));
         }
         SmartDashboard.putNumber("Shtr Cmd Spd", spd);
     }

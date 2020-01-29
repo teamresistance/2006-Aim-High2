@@ -41,10 +41,9 @@ public class JS_IO {
     public static Axis turretRot = new Axis(); // Rotate turret
 
     // Turret buttons
-    public static Button shooterRun = new Button(); // Run shooter (trigger) else idle
-    public static Button shooterStop = new Button(); // Stop shooter
-    public static Button shooterTest = new Button(); // pid test button
-    public static Button shooterReset = new Button();
+    public static Button shooterRun = new Button(); // Run shooter run (trigger) else idle
+    public static Button shooterStop = new Button(); // Stop shooter & reset
+    public static Button shooterReset = new Button();   //??
     public static Button doesNothing = new Button();
 
     public static Button llControl = new Button();
@@ -144,7 +143,6 @@ public class JS_IO {
         // Turret buttons
         shooterRun.setButton(gamePad, 6);
         shooterStop.setButton(gamePad, 5);
-        shooterTest.setButton(gamePad, 10);
         shooterReset.setButton(gamePad, 9);
 
         llControl.setButton(gamePad, 3);
