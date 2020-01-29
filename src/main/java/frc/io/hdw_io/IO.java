@@ -64,8 +64,8 @@ public class IO {
     public static Faults _faults = new Faults(); /* temp to fill with latest faults */
 
     public static void init() {
-        shooter.setInverted(true);
-        shooter.setSensorPhase(false); // <<<<<< Adjust this to correct phasing with motor
+        shooter.setInverted(false);     //Inverts motor direction and encoder if attached
+        shooter.setSensorPhase(false);  //Adjust this to correct phasing with motor
 
     }
 
