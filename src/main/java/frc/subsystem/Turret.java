@@ -55,13 +55,13 @@ public class Turret {
 
     // I am the determinator
     private static void determ() {
-        if (JS_IO.turretJSDir.get())
+        if (JS_IO.turretJSDir.get())        //GP7
             state = 1;
-        if (!JS_IO.turretSP.isNone())
+        if (!JS_IO.turretSP.isNone())       //Pov
             state = 2; // If POV pressed switch to POV SP
-        if (JS_IO.turretZero.get())
+        if (JS_IO.turretZero.get())         //GP8
             state = 3;
-        if (JS_IO.llControl.get())
+        if (JS_IO.llControl.get())          //GP10
             state = 4;
     }
 
