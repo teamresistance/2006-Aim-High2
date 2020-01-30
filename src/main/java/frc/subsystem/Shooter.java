@@ -44,7 +44,7 @@ public class Shooter {
     private static double pct_SP = 0.7;
     private static double pctIdleSP = 0.3;
 
-    public static double rpm_SP = 5300.0;   //Negate motr spd to rotate correctly
+    public static double rpm_SP = 4950.0;   //Negate motr spd to rotate correctly
     public static double rpmIdleSP = 1000.0;
     public static double rpm_kP = 55;
     public static double rpm_kI = 0.0;
@@ -104,12 +104,16 @@ public class Shooter {
             break;
         case 1: // Shoot at default rpm else percent
             cmdUpdate( shtrCtlRPM ? rpm_SP : pct_SP );
+            // if( rpm_FB - rpm_SP < -200) state =2;
             prvState = state;
             if (!JS_IO.shooterRun.get())
                 state = 3;
             break;
         case 2: // Shooter slow, bump to 100% to compensate
             cmdUpdate( shtrCtlRPM ? 6800.0 : 1.0 );
+            // if( rpm_FB - rpm_SP > 100) state =1;
+            if (!JS_IO.shooterRun.get())
+                state = 3;
             prvState = state;
             break;
         case 3: // Shooter idle after shooting once
@@ -135,7 +139,7 @@ public class Shooter {
         SmartDashboard.putNumber("RPM", rpm_FB);
         SmartDashboard.putNumber("MtrOutPct", (shooter.getMotorOutputPercent() * 600) / 47);    //???
 
-        rpm_SP = SmartDashboard.getNumber("RMP SP", rpm_SP);
+        rpm_SP = SmartDashboard.getNumber("RPM SP", rpm_SP);
         rpmIdleSP = SmartDashboard.getNumber("RMP Idle SP", rpmIdleSP);
         rpm_kP = SmartDashboard.getNumber("RMP kP", rpm_kP);
         rpm_kI = SmartDashboard.getNumber("RMP kI", rpm_kI);
