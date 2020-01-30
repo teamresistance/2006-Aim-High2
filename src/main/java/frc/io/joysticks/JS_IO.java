@@ -145,7 +145,7 @@ public class JS_IO {
         shooterStop.setButton(gamePad, 5);
         shooterReset.setButton(gamePad, 9);
 
-        llControl.setButton(gamePad, 3);
+        llControl.setButton(gamePad, 10);
 
         turretCW.setButton(gamePad, 2);
         turretCCW.setButton(gamePad, 3);
