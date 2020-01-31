@@ -59,9 +59,9 @@ public class Turret {
             state = 1;
         if (!JS_IO.turretSP.isNone())       //Pov
             state = 2; // If POV pressed switch to POV SP
-        if (JS_IO.turretZero.get())         //GP8
+        if (JS_IO.turretZero.get())         //GP8, Ctl Prop to LL
             state = 3;
-        if (JS_IO.llControl.get())          //GP10
+        if (JS_IO.llControl.get())          //GP10, Ctl to LL fixed spd
             state = 4;
     }
 
@@ -82,14 +82,16 @@ public class Turret {
             cmdUpdate(turretPct);
             // prvState = state;
             break;
-        case 2: // Control position to SP, by POV
+        case 2: // Control position to LL
             turretSP = JS_IO.turretSP.get() - 180.0;
             cmdUpdate(propCtl(turretSP, turretFB));
             prvState = state;
             break;
-        case 3: // Zero Position, SP = 0
+        case 3: // Was Zero Position, SP = 0.  Now ctl Prop to LL
             turretSP = 0.0;
-            cmdUpdate(propCtl(turretSP, turretFB));
+            if (LL_IO.llHasTarget()) {
+                cmdUpdate(propCtl(0.0, LL_IO.getLLX()));
+            }
             prvState = state;
             break;
         case 4: // limelight control
@@ -121,18 +123,17 @@ public class Turret {
         SmartDashboard.putNumber("Turret CCW ES", IO.turretCCWCntr.get());
         SmartDashboard.putNumber("Turret CW ES", IO.turretCWCntr.get());
         SmartDashboard.putNumber("turret state", state);
-        // SmartDashboard.putBoolean("CCW limit", IO.turretCCWes.get());
-        // SmartDashboard.putBoolean("CW limit", IO.turretCWes.get());
+        SmartDashboard.putNumber("turret LLX", LL_IO.getLLX());
     }
 
     // Send commands to turret motor
     private static void cmdUpdate(double spd) {
-        // if( Math.abs(turretFB) > 135.0 ) spd = 0.0;
-        if (IO.turretCCWCntr.get() > 0 && spd < 0)
+        turretFB = IO.pot.get();
+        if ((IO.turretCCWCntr.get() > 0 || turretFB > 80.0) && spd < 0)
             spd = 0;
-        if (IO.turretCWCntr.get() > 0 && spd > 0)
+        if ((IO.turretCWCntr.get() > 0 || turretFB < -80.0) && spd > 0)
             spd = 0;
-        SmartDashboard.putNumber("Turret xval", spd);
+        SmartDashboard.putNumber("Turret Spd Out", spd);
         turret.set(spd);
         if (spd > 0.3)
             IO.turretCCWCntr.reset();
@@ -149,9 +150,9 @@ public class Turret {
     // Returns proportional response. Poorman's P Loop
     public static double propCtl(double sp, double fb) {
         double err = fb - sp;
-        if (Math.abs(err) > 3.0) {
-            err = BotMath.Span(err, -180, 180, 0.7, -0.7, true, false);
-            return Math.abs(err) > 0.2 ? err : err > 0.0 ? -0.2 : 0.2;
+        if (Math.abs(err) > 1.0) {  //Calc when in DB
+            err = BotMath.Span(err, -25.0, 25.0, 1.0, -1.0, true, false);
+            return Math.abs(err) > 0.2 ? err : err > 0.0 ? 0.2 : -0.2;  //Min spd when in DB
         }
         return 0.0;
     }
