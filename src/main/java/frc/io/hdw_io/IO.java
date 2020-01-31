@@ -39,8 +39,7 @@ public class IO {
     public static TalonSRX shooter = new TalonSRX(12);
 
     // public static Encoder shooterRPM = new Encoder(0, 1);
-    //public static AnalogInput turretPot = new AnalogInput(0); // Figure out how to chg to pot interface
-    public static AnalogPotentiometer pot = new AnalogPotentiometer(0, 185.0, -90.0);
+    public static AnalogPotentiometer turretPot = new AnalogPotentiometer(0, 185.0, -90.0);
 
     // public static DigitalInput turretCCWes = new DigitalInput(0); // CCW End
     // Switch
@@ -72,7 +71,7 @@ public class IO {
     public static void update() {
         SmartDashboard.putNumber("Shooter Pwr", pdp.getCurrent(0));
         //SmartDashboard.putNumber("pot", turretPot.getValue());
-        SmartDashboard.putNumber("scaled pot", pot.get());
+        SmartDashboard.putNumber("scaled pot", turretPot.get());
 
         // ------- Shooter Talon pidf control setup -------------
         /* check our live faults */

@@ -128,7 +128,7 @@ public class Turret {
 
     // Send commands to turret motor
     private static void cmdUpdate(double spd) {
-        turretFB = IO.pot.get();
+        turretFB = IO.turretPot.get();
         if ((IO.turretCCWCntr.get() > 0 || turretFB > 80.0) && spd < 0)
             spd = 0;
         if ((IO.turretCWCntr.get() > 0 || turretFB < -80.0) && spd > 0)
