@@ -25,14 +25,18 @@ public class BotMath{
             tmp = ( tmp * outDelta ) + outLo;
         }
 
-        if( clamp ) tmp = Clamp(tmp, outLo, outHi );
+        // if( clamp ) tmp = Clamp(tmp, outLo, outHi );
 
         return tmp;
     }
 
     // inVal is limited between outLo & outHi
     public static double Clamp( double inVal, double outLo, double outHi){
-        return Math.max( outLo, Math.min(outHi, inVal ));
+        double tmp = Math.min(outLo, outHi);
+        if( inVal < tmp ) return tmp;
+        tmp = Math.max(outLo, outHi);
+        if( inVal > tmp ) return tmp;
+        return inVal;
     }
 
     // Left this here.  Does the same thing as clamp.
