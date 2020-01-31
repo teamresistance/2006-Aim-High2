@@ -55,13 +55,16 @@ public class Turret {
 
     // I am the determinator
     private static void determ() {
-        if (JS_IO.turretJSDir.get())        //GP7
+        if (JS_IO.turretJSDir.get())        //GP7, Ctl by JSs
             state = 1;
-        if (!JS_IO.turretSP.isNone())       //Pov
-            state = 2; // If POV pressed switch to POV SP
-        if (JS_IO.turretZero.get())         //GP8, Ctl Prop to LL
+        if (!JS_IO.turretSP.isNone()) {     //POV pressed switch to POV SP
+            turretSP = JS_IO.turretSP.get();
+            if( turretSP > 180) turretSP -= 360.0;  // Should be -135 to 180 (limit -90 t0 90)
+            state = turretSP == 180.0 ? 0 : 2;      // If 180 pressed go to 0
+        }
+        if (JS_IO.turretLLProp.get())       //GP8, Ctl Prop to LL
             state = 3;
-        if (JS_IO.llControl.get())          //GP10, Ctl to LL fixed spd
+        if (JS_IO.turretLLDB.get())         //GP10, Ctl to LL fixed spd w/DB
             state = 4;
     }
 
@@ -80,17 +83,16 @@ public class Turret {
         case 1: // Control with JS
             turretPct = -JS_IO.turretRot.get(); // Neg = CW, Pos = CCW
             cmdUpdate(turretPct);
-            // prvState = state;
-            break;
-        case 2: // Control position to LL
-            turretSP = JS_IO.turretSP.get() - 180.0;
-            cmdUpdate(propCtl(turretSP, turretFB));
             prvState = state;
             break;
-        case 3: // Was Zero Position, SP = 0.  Now ctl Prop to LL
+        case 2: // Control pov sp & to pot fb
+            cmdUpdate(propCtl(turretSP, turretFB, 45.0 ));
+            prvState = state;
+            break;
+        case 3: // SP = 0.  Now ctl Prop to LL
             turretSP = 0.0;
             if (LL_IO.llHasTarget()) {
-                cmdUpdate(propCtl(0.0, LL_IO.getLLX()));
+                cmdUpdate(propCtl(0.0, LL_IO.getLLX(), 25.0 ));
             }
             prvState = state;
             break;
@@ -104,7 +106,7 @@ public class Turret {
                     cmdUpdate(0);
                 }
             } else {
-                cmdUpdate(0);
+                cmdUpdate(0.0);
             }
             break;
         default: // mtr off
@@ -141,17 +143,11 @@ public class Turret {
             IO.turretCWCntr.reset();
     }
 
-    // Scale turret pot
-    /*
-     * private static void turretPotUpd(){ turretFB =
-     * BotMath.Span(turretPot.getAverageVoltage(), 0.0, 5.0, -135.0, 135.0, false,
-     * false); }
-     */
     // Returns proportional response. Poorman's P Loop
-    public static double propCtl(double sp, double fb) {
+    public static double propCtl(double sp, double fb, double pb) {
         double err = fb - sp;
         if (Math.abs(err) > 1.0) {  //Calc when in DB
-            err = BotMath.Span(err, -25.0, 25.0, 1.0, -1.0, true, false);
+            err = BotMath.Span(err, -pb, pb, 1.0, -1.0, true, false);
             return Math.abs(err) > 0.2 ? err : err > 0.0 ? 0.2 : -0.2;  //Min spd when in DB
         }
         return 0.0;

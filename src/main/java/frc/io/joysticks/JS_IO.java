@@ -44,16 +44,14 @@ public class JS_IO {
     public static Button shooterRun = new Button(); // Run shooter run (trigger) else idle
     public static Button shooterStop = new Button(); // Stop shooter & reset
     public static Button shooterReset = new Button();   //??
-    public static Button doesNothing = new Button();
 
-    public static Button llControl = new Button();
-    public static Button turretCW = new Button(); // Turn turret CW
-    public static Button turretCCW = new Button(); // Turn turret CCW
-    public static Button lifterUp = new Button(); // Run motor to lift balls
-    public static Button lifterDn = new Button(); // Run motor to lower balls
-    public static Button turretJSDir = new Button(); // Directly rotate with JS
-    public static Pov turretSP = new Pov(); // Rotate by Pot SP with JS 0/45/90/.../315
-    public static Button turretZero = new Button(); // Rotate forward
+    public static Button turretJSDir = new Button();// Directly rotate with JS
+    public static Button turretLLDB = new Button(); //Rotate turret with LL using fixed spd w/ DB
+    public static Button turretLLProp = new Button(); //Rotate turret prop using LL
+    public static Pov turretSP = new Pov(); // Rotate by Pot SP with JS 0/45/90/.../315 minus 180
+
+    public static Button lifterUp = new Button();   // Run motor to lift balls
+    public static Button lifterDn = new Button();   // Run motor to lower balls
 
     // Shooter testing only on Norm3JS
     // public static Button ptrShtrDiag.set(coJoystick, 11);
@@ -119,17 +117,14 @@ public class JS_IO {
         // Turret buttons
         shooterRun.setButton(rightJoystick, 1);
         shooterStop.setButton(rightJoystick, 6);
-        turretCW.setButton(rightJoystick, 12);
-        turretCCW.setButton(rightJoystick, 11);
         lifterUp.setButton(rightJoystick, 3);
         lifterDn.setButton(rightJoystick, 5);
 
         turretJSDir.setButton(coJoystick, 7);
         turretSP.setPov(coJoystick, 0);
-        turretZero.setButton(coJoystick, 9);
+        turretLLProp.setButton(coJoystick, 9);
+        turretLLDB.setButton(coJoystick, 8);
 
-        // Shooter testing only on Norm3JS
-        // ptrShtrDiag.setButton(coJoystick, 11);
     }
 
     // ----- gamePad only --------
@@ -141,22 +136,17 @@ public class JS_IO {
         turretRot.setAxis(gamePad, 4); // Neg = CW, Pos = CCW
 
         // Turret buttons
-        shooterRun.setButton(gamePad, 6);
-        shooterStop.setButton(gamePad, 5);
+        shooterRun.setButton(gamePad, 6);   //Run shooter at pct or rpm sp, select by sdb
+        shooterStop.setButton(gamePad, 5);  //    
         shooterReset.setButton(gamePad, 9);
 
-        llControl.setButton(gamePad, 10);
-
-        turretCW.setButton(gamePad, 2);
-        turretCCW.setButton(gamePad, 3);
         lifterUp.setButton(gamePad, 4);
         lifterDn.setButton(gamePad, 1);
 
-        doesNothing.setButton(gamePad, 2);
-
-        turretJSDir.setButton(gamePad, 7);
-        turretSP.setPov(gamePad, 0);
-        turretZero.setButton(gamePad, 8);
+        turretLLDB.setButton(gamePad, 10);  //Rotate turret with LL using fixed spd w/ DB
+        turretLLProp.setButton(gamePad, 8); //Rotate turret prop using LL
+        turretJSDir.setButton(gamePad, 7);  //Rotate turret JS, GP axis4
+        turretSP.setPov(gamePad, 0);        //Rotate turret to pov setpt with pot fb.
     }
 
     // ------------ One Joystick only -----------
@@ -188,13 +178,10 @@ public class JS_IO {
         // Turret buttons
         shooterRun.setButton(null, 0);
         shooterStop.setButton(null, 0);
-        turretCW.setButton(null, 0);
-        turretCCW.setButton(null, 0);
         lifterUp.setButton(null, 0);
         lifterDn.setButton(null, 0);
 
         turretJSDir.setButton(null, 0);
         turretSP.setPov(null, -1);
-        turretZero.setButton(null, 0);
     }
 }
