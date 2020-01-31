@@ -40,7 +40,7 @@ public class IO {
 
     // public static Encoder shooterRPM = new Encoder(0, 1);
     //public static AnalogInput turretPot = new AnalogInput(0); // Figure out how to chg to pot interface
-    public static AnalogPotentiometer pot = new AnalogPotentiometer(0, 180.0, -90.0);
+    public static AnalogPotentiometer pot = new AnalogPotentiometer(0, 185.0, -90.0);
 
     // public static DigitalInput turretCCWes = new DigitalInput(0); // CCW End
     // Switch
