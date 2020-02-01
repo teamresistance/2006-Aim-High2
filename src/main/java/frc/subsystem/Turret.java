@@ -42,6 +42,10 @@ public class Turret {
 
     private static int llState = 0;
 
+    public static boolean llHasTarget = false;  // LL sees a target & ??
+    public static int shooterReq = 0;           // Test, Request shoot to rpm
+    public static boolean lifterReq = false;    // Test, Request lifter
+
     // Constructor
     public Turret() {
         init();
@@ -55,23 +59,44 @@ public class Turret {
 
     // I am the determinator
     private static void determ() {
-        if (JS_IO.turretJSDir.get())        //GP7, Ctl by JSs
-            state = 1;
-        if (!JS_IO.turretSP.isNone()) {     //POV pressed switch to POV SP
+        if (JS_IO.turretJSDir.get()) state = 1; //GP7, Ctl by JSs
+        if (!JS_IO.turretSP.isNone()) {         //POV pressed switch to POV SP
             turretSP = JS_IO.turretSP.get();
             if( turretSP > 180) turretSP -= 360.0;  // Should be -135 to 180 (limit -90 t0 90)
             state = turretSP == 180.0 ? 0 : 2;      // If 180 pressed go to 0
         }
-        if (JS_IO.turretLLProp.get())       //GP8, Ctl Prop to LL
-            state = 3;
-        if (JS_IO.turretLLDB.get())         //GP10, Ctl to LL fixed spd w/DB
-            state = 4;
+        if (JS_IO.turretLLProp.get()) state = 3;    //GP8, Ctl Prop to LL
+        if (JS_IO.turretLLDB.get()) state = 4;      //GP10, Ctl to LL fixed spd w/DB
+
+        //Test btn on RR when pressed starts the turret/shooter/lifter sequence.
+        //This allows me to push bot and control shooting.
+        //1 prs target & idle shooter, 2 prs shtr to sp, 3 prs lift, 4 prs back to 0ff
+        if( JS_IO.shooterStop.get()) IO.turretTestCntr.reset();
+        switch( IO.turretTestCntr.get()){
+            case 0:
+            break;
+            case 1:
+                state = 3;
+                shooterReq = 1; //shooter to idle
+            break;
+            case 2:
+                shooterReq = llHasTarget ? 2 : 1;   // at SP else idle
+            break;
+            case 3:
+                lifterReq = llHasTarget && Shooter.isAtSpd();
+            break;
+            default:
+                shooterReq = 0;
+                lifterReq = false;
+                state = 0;
+                IO.turretTestCntr.reset();
+            break;
+        }
     }
 
     public static void update() {
         sdbUpdate();
         determ();
-        // turretPotUpd();
         // ------------- Main State Machine --------------
         // cmd update( shooter speed )
         switch (state) {
@@ -102,7 +127,7 @@ public class Turret {
                     cmdUpdate(-0.5);
                 } else if (LL_IO.getLLX() < -3) {
                     cmdUpdate(0.5);
-                } else if (LL_IO.getLLX() < 3 && LL_IO.getLLX() > -3) {
+                } else if (LL_IO.getLLX() < 3 && LL_IO.getLLX() > -3) { //Why?
                     cmdUpdate(0);
                 }
             } else {
@@ -126,11 +151,13 @@ public class Turret {
         SmartDashboard.putNumber("Turret CW ES", IO.turretCWCntr.get());
         SmartDashboard.putNumber("turret state", state);
         SmartDashboard.putNumber("turret LLX", LL_IO.getLLX());
+
+        turretFB = IO.turretPot.get();
+        llHasTarget = llHasTarget();
     }
 
     // Send commands to turret motor
     private static void cmdUpdate(double spd) {
-        turretFB = IO.turretPot.get();
         if ((IO.turretCCWCntr.get() > 0 || turretFB > 80.0) && spd < 0)
             spd = 0;
         if ((IO.turretCWCntr.get() > 0 || turretFB < -80.0) && spd > 0)
@@ -162,9 +189,8 @@ public class Turret {
         return true;
     }
 
-    private static double limelightCtl() {
-
-        return 69;
+    private static boolean llHasTarget() {
+        return LL_IO.llHasTarget();
     }
 
 }

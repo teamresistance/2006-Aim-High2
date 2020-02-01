@@ -41,11 +41,12 @@ public class IO {
     // public static Encoder shooterRPM = new Encoder(0, 1);
     public static AnalogPotentiometer turretPot = new AnalogPotentiometer(0, 185.0, -90.0);
 
-    // public static DigitalInput turretCCWes = new DigitalInput(0); // CCW End
-    // Switch
-    // public static DigitalInput turretCWes = new DigitalInput(1); // CC End Switch
     public static Counter turretCCWCntr = new Counter(0); // CCW counter
     public static Counter turretCWCntr = new Counter(1); // CW Counter
+    // Test button.  Allows me to push bot around w/o computer, GP.
+    // Press once to start shooter & LL target. Next press starts feeder
+    // Next press stop all?
+    public static Counter turretTestCntr = new Counter(9);
 
     // ---------- WoF, Color Sensor -----------------
     /**
@@ -69,9 +70,8 @@ public class IO {
     }
 
     public static void update() {
-        SmartDashboard.putNumber("Shooter Pwr", pdp.getCurrent(0));
-        //SmartDashboard.putNumber("pot", turretPot.getValue());
-        SmartDashboard.putNumber("scaled pot", turretPot.get());
+        SmartDashboard.putNumber("Shooter Amps", pdp.getCurrent(0));
+        SmartDashboard.putNumber("Turret Pot", turretPot.get());
 
         // ------- Shooter Talon pidf control setup -------------
         /* check our live faults */

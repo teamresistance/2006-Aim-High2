@@ -54,6 +54,7 @@ public class Shooter {
 
     private static int state;
     private static int prvState;
+    private static int prvShooterReq = 0;
 
     // Constructor
     public Shooter() {
@@ -85,11 +86,25 @@ public class Shooter {
 
     // I am the determinator
     private static void determ() {
-        if (JS_IO.shooterRun.get())     //GP6, Shoot or idle
-            state = 1;
-        if (JS_IO.shooterStop.get())    //GP5, Stop
-            state = 0;
-            shooter.setSelectedSensorPosition(0,0,0);
+        if (JS_IO.shooterRun.get()) state = 1;  //GP6, Shoot or idle
+        if (JS_IO.shooterStop.get()) state = 0; //GP5, Stop
+        shooter.setSelectedSensorPosition(0,0,0);
+            
+        //shooterReq 0-off, 1=idle, 2=sp
+        if(Turret.shooterReq != prvShooterReq){
+            prvShooterReq = Turret.shooterReq;
+            switch(prvShooterReq){
+                case 0:
+                    state = 0;
+                break;
+                case 1:
+                    state = 2;
+                break;
+                case 2:
+                    state = 1;
+                break;
+            }
+        }
     }
 
     public static void update() {

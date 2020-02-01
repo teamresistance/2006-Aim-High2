@@ -31,6 +31,7 @@ public class Lifter {
 
     private static int state;
     private static int prvState;
+    private static boolean prvLifterReq = false;
 
     //Constructor
     public Lifter() {
