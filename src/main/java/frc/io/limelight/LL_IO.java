@@ -33,9 +33,11 @@ public class LL_IO {
     }
 
     public static Integer llOnTarget(double db) {
+        double tmpD = getLLX();
         if(llHasTarget()){
-            if(getLLX() < db) return -1;
-            if(getLLX() > db) return 1;
+            if(Math.abs(tmpD) > db){
+                return tmpD < 0.0 ? -1 : 1;
+            }
             return 0;
         }
         return null;

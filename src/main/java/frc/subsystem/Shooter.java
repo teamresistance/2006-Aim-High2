@@ -182,9 +182,14 @@ public class Shooter {
     }
 
     // Chk rpm if state 4 use rpm else pct.  May need to add OnOffDly 
-    public static boolean isAtSpd() {
+    public static boolean isAtSpd(double rpm_db) {
         if(state == 4)
-            return Math.abs(rpm_SP - rpm_FB) < 200; //rpm_DB
+            return Math.abs(rpm_SP - rpm_FB) < rpm_db; //rpm_DB
         return Math.abs(shooter.getMotorOutputPercent() - pct_SP) < 0.2;    //pct db
+    }
+
+    // Chk rpm if state 4 use rpm else pct.  May need to add OnOffDly 
+    public static boolean isAtSpd() {
+        return isAtSpd( 200 );
     }
 }

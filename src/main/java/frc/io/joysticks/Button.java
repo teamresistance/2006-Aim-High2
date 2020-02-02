@@ -71,7 +71,6 @@ public class Button{
 	// returns true once when button pressed
 	public boolean onButtonPressed() {
 		pressed = !pressed;
-		System.out.println(pressed);
 		return exists ? joystick.getRawButtonPressed(buttonID) : existDflt;
 	}
 
