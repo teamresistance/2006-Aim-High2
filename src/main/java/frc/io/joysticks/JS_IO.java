@@ -48,7 +48,7 @@ public class JS_IO {
     public static Button turretLLDB = new Button();     //Rotate turret with LL using fixed spd w/ DB
     public static Button turretLLProp = new Button();   //Rotate turret prop using LL
     public static Pov turretSP = new Pov(); // Rotate by Pot SP with JS 0/45/90/.../315 minus 180
-
+    public static Button turSeqStep = new Button();
     public static Button lifterUp = new Button();       // Run motor to lift balls
     public static Button lifterDn = new Button();       // Run motor to lower balls
 
@@ -141,6 +141,7 @@ public class JS_IO {
         turretLLProp.setButton(gamePad, 8); //Rotate turret prop using LL
         turretJSDir.setButton(gamePad, 7);  //Rotate turret JS, GP axis4
         turretSP.setPov(gamePad, 0);        //Rotate turret to pov setpt with pot fb.
+        turSeqStep.setButton(gamePad, 2);   //Sequence ll turret, shooter then lifter.
     }
 
     // ------------ One Joystick only -----------

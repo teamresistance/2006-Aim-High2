@@ -44,13 +44,13 @@ public class Shooter {
     private static double pct_SP = 0.7;
     private static double pctIdleSP = 0.3;
 
-    public static double rpm_SP = 4950.0;   //Negate motr spd to rotate correctly
+    public static double rpm_SP = 4400.0;
     public static double rpmIdleSP = 1000.0;
     public static double rpm_kP = 55;
     public static double rpm_kI = 0.0;
     public static double rpm_kD = 0.0;
     public static double rpm_kF = 1.47;
-    public static double rpm_FB = 0.0;      //Negate encoder to match motor rotation
+    public static double rpm_FB = 0.0;
 
     private static int state;
     private static int prvState;
@@ -61,6 +61,7 @@ public class Shooter {
         init();
     }
 
+    // Initialize
     public static void init() {
         shooter.enableVoltageCompensation(true);
         shooter.configVoltageCompSaturation(12,0);
@@ -98,7 +99,7 @@ public class Shooter {
                     state = 0;
                 break;
                 case 1:
-                    state = 2;
+                    state = 3;
                 break;
                 case 2:
                     state = 1;
@@ -121,7 +122,7 @@ public class Shooter {
             cmdUpdate( shtrCtlRPM ? rpm_SP : pct_SP );
             // if( rpm_FB - rpm_SP < -200) state =2;
             prvState = state;
-            if (!JS_IO.shooterRun.get())
+            if (JS_IO.shooterRun.onButtonReleased())
                 state = 3;
             break;
         case 2: // Shooter slow, bump to 100% to compensate
@@ -153,6 +154,7 @@ public class Shooter {
         SmartDashboard.putNumber("enc velocity", shooter.getSelectedSensorVelocity());
         SmartDashboard.putNumber("RPM", rpm_FB);
         SmartDashboard.putNumber("MtrOutPct", (shooter.getMotorOutputPercent() * 600) / 47);    //???
+        SmartDashboard.putNumber("prv shtr req", prvShooterReq);
 
         rpm_SP = SmartDashboard.getNumber("RPM SP", rpm_SP);
         rpmIdleSP = SmartDashboard.getNumber("RMP Idle SP", rpmIdleSP);

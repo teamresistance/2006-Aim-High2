@@ -66,7 +66,8 @@ public class IO {
     public static void init() {
         shooter.setInverted(false);     //Inverts motor direction and encoder if attached
         shooter.setSensorPhase(false);  //Adjust this to correct phasing with motor
-
+        turret.setInverted(false);
+        lifter.setInverted(false);
     }
 
     public static void update() {

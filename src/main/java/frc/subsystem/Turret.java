@@ -36,13 +36,14 @@ public class Turret {
     private static double turretPct = 0.7; // Used as -/+ limit
     private static double turretFB = 0.0; // Scaled turret pot to degrees
     private static double turretSP = 0.0; // SP degrees -135 to 135, 0 forward
+    private static double prvturPov = 0.0;// SP degrees -135 to 135, 0 forward
+    private static int turSeqCntr = 0;
 
     private static int state;
     private static int prvState;
 
     private static int llState = 0;
 
-    public static boolean llHasTarget = false;  // LL sees a target & ??
     public static int shooterReq = 0;           // Test, Request shoot to rpm
     public static boolean lifterReq = false;    // Test, Request lifter
 
@@ -59,37 +60,39 @@ public class Turret {
 
     // I am the determinator
     private static void determ() {
+        if(JS_IO.turSeqStep.onButtonPressed()) turSeqCntr++;
         if (JS_IO.turretJSDir.get()) state = 1; //GP7, Ctl by JSs
         if (!JS_IO.turretSP.isNone()) {         //POV pressed switch to POV SP
-            turretSP = JS_IO.turretSP.get();
+            //QnD Debounce for the pov.
+            if(JS_IO.turretSP.get() != prvturPov){
+                prvturPov = JS_IO.turretSP.get();
+            }else{
+                turretSP = JS_IO.turretSP.get();
+            }
             if( turretSP > 180) turretSP -= 360.0;  // Should be -135 to 180 (limit -90 t0 90)
             state = turretSP == 180.0 ? 0 : 2;      // If 180 pressed go to 0
         }
         if (JS_IO.turretLLProp.get()) state = 3;    //GP8, Ctl Prop to LL
         if (JS_IO.turretLLDB.get()) state = 4;      //GP10, Ctl to LL fixed spd w/DB
 
-        //Test btn on RR when pressed starts the turret/shooter/lifter sequence.
-        //This allows me to push bot and control shooting.
+        //Test btn when pressed starts the turret/shooter/lifter sequence.
+        //This allows to push bot and control shooting.
         //1 prs target & idle shooter, 2 prs shtr to sp, 3 prs lift, 4 prs back to 0ff
-        if( JS_IO.shooterStop.get()) IO.turretTestCntr.reset();
-        switch( IO.turretTestCntr.get()){
+        if( JS_IO.shooterStop.get()) turSeqCntr = 10;
+        switch( turSeqCntr){
             case 0:
             break;
             case 1:
-                state = 3;
-                shooterReq = 1; //shooter to idle
+                shooterReq = LL_IO.llHasTarget() ? 2 : 1;   // at SP else idle
             break;
             case 2:
-                shooterReq = llHasTarget ? 2 : 1;   // at SP else idle
-            break;
-            case 3:
-                lifterReq = llHasTarget && Shooter.isAtSpd();
+                lifterReq = LL_IO.llHasTarget() && Shooter.isAtSpd();
             break;
             default:
                 shooterReq = 0;
                 lifterReq = false;
+                turSeqCntr = 0;
                 state = 0;
-                IO.turretTestCntr.reset();
             break;
         }
     }
@@ -111,13 +114,13 @@ public class Turret {
             prvState = state;
             break;
         case 2: // Control pov sp & to pot fb
-            cmdUpdate(propCtl(turretSP, turretFB, 45.0 ));
+            cmdUpdate(propCtl(turretSP, turretFB, -20.0 ));
             prvState = state;
             break;
         case 3: // SP = 0.  Now ctl Prop to LL
             turretSP = 0.0;
             if (LL_IO.llHasTarget()) {
-                cmdUpdate(propCtl(0.0, LL_IO.getLLX(), 25.0 ));
+                cmdUpdate(propCtl(0.0, LL_IO.getLLX(), 15.0 ));
             }
             prvState = state;
             break;
@@ -151,9 +154,9 @@ public class Turret {
         SmartDashboard.putNumber("Turret CW ES", IO.turretCWCntr.get());
         SmartDashboard.putNumber("turret state", state);
         SmartDashboard.putNumber("turret LLX", LL_IO.getLLX());
+        SmartDashboard.putNumber("tur seq cntr", turSeqCntr);
 
         turretFB = IO.turretPot.get();
-        llHasTarget = llHasTarget();
     }
 
     // Send commands to turret motor
@@ -187,10 +190,6 @@ public class Turret {
 
     public static boolean isAtSpd() {
         return true;
-    }
-
-    private static boolean llHasTarget() {
-        return LL_IO.llHasTarget();
     }
 
 }

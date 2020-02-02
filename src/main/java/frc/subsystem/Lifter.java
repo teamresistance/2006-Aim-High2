@@ -49,6 +49,7 @@ public class Lifter {
         state = 0;
         if(JS_IO.lifterUp.get()) state = 1;
         if(JS_IO.lifterDn.get()) state = 2;
+        if(Turret.lifterReq) state = 1;
     }
 
     public static void update() {
@@ -79,6 +80,7 @@ public class Lifter {
 
     // Smartdashboard shtuff
     private static void sdbUpdate(){
+        SmartDashboard.putBoolean("lifter req", Turret.lifterReq);
         lifterPct = SmartDashboard.getNumber("Lift Spd", 0.7);
     }
 
