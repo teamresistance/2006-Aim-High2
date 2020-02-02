@@ -22,8 +22,8 @@ import edu.wpi.first.wpilibj.Victor;
 import frc.io.hdw_io.IO;
 import frc.io.joysticks.JS_IO;
 import frc.io.limelight.LL_IO;
+import frc.util.Timer;
 import frc.util.timers.OnDly;
-import frc.util.timers.OnOffDly;
 
 public class Lifter {
     private static Victor lifter = IO.lifter;
@@ -33,6 +33,7 @@ public class Lifter {
     private static int state;
     private static int prvState;
     private static boolean prvLifterReq = false;
+    private static OnDly llOnDly = new OnDly( 250 );
 
     //Constructor
     public Lifter() {
@@ -51,8 +52,11 @@ public class Lifter {
         if(JS_IO.lifterUp.get()) state = 1;
         if(JS_IO.lifterDn.get()) state = 2;
 
-        if(JS_IO.shooterRun.get() && Shooter.isAtSpd() &&
-           LL_IO.llOnTarget(3.0) == 0 ){
+        if(JS_IO.shooterRun.get() &&
+           Shooter.isAtSpd() &&
+           LL_IO.llHasTarget() &&
+           llOnDly.get(LL_IO.llOnTarget(3.0) == 0 )){
+               
             state = 1;
         }
 

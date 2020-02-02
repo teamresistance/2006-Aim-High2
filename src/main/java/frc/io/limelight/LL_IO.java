@@ -32,15 +32,16 @@ public class LL_IO {
         }
     }
 
-    public static int llOnTarget(double db) {
+    public static Integer llOnTarget(double db) {
         if(llHasTarget()){
             if(getLLX() < db) return -1;
             if(getLLX() > db) return 1;
+            return 0;
         }
-        return 0;
+        return null;
     }
 
-    public static int llOnTarget() {
+    public static Integer llOnTarget() {
         return llOnTarget(3.0);
     }
 

@@ -127,7 +127,9 @@ public class Turret {
             prvState = state;
             break;
         case 4: // limelight control
-            cmdUpdate(LL_IO.llOnTarget(3.0) * 0.5);
+            if(!(LL_IO.llOnTarget() == null)) {
+                cmdUpdate(LL_IO.llOnTarget(3.0) * 0.5);
+            }
             break;
         default: // mtr off
             cmdUpdate(0.0);
