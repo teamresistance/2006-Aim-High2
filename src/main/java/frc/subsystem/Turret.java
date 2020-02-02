@@ -60,8 +60,12 @@ public class Turret {
 
     // I am the determinator
     private static void determ() {
-        if(JS_IO.turSeqStep.onButtonPressed()) turSeqCntr++;
+        if(JS_IO.shooterRun.onButtonPressed()) state = 3;   //GP6
+        if(JS_IO.shooterStop.onButtonPressed()) state = 0;  //GP5
         if (JS_IO.turretJSDir.get()) state = 1; //GP7, Ctl by JSs
+        if (JS_IO.turretLLProp.get()) state = 3;    //GP8, Ctl Prop to LL
+        if (JS_IO.turretLLDB.get()) state = 4;      //GP10, Ctl to LL fixed spd w/DB
+
         if (!JS_IO.turretSP.isNone()) {         //POV pressed switch to POV SP
             //QnD Debounce for the pov.
             if(JS_IO.turretSP.get() != prvturPov){
@@ -72,8 +76,6 @@ public class Turret {
             if( turretSP > 180) turretSP -= 360.0;  // Should be -135 to 180 (limit -90 t0 90)
             state = turretSP == 180.0 ? 0 : 2;      // If 180 pressed go to 0
         }
-        if (JS_IO.turretLLProp.get()) state = 3;    //GP8, Ctl Prop to LL
-        if (JS_IO.turretLLDB.get()) state = 4;      //GP10, Ctl to LL fixed spd w/DB
 
         //Test btn when pressed starts the turret/shooter/lifter sequence.
         //This allows to push bot and control shooting.
@@ -125,17 +127,7 @@ public class Turret {
             prvState = state;
             break;
         case 4: // limelight control
-            if (LL_IO.llHasTarget()) {
-                if (LL_IO.getLLX() > 3 ) {
-                    cmdUpdate(-0.5);
-                } else if (LL_IO.getLLX() < -3) {
-                    cmdUpdate(0.5);
-                } else if (LL_IO.getLLX() < 3 && LL_IO.getLLX() > -3) { //Why?
-                    cmdUpdate(0);
-                }
-            } else {
-                cmdUpdate(0.0);
-            }
+            cmdUpdate(LL_IO.llOnTarget(3.0) * 0.5);
             break;
         default: // mtr off
             cmdUpdate(0.0);
@@ -187,9 +179,4 @@ public class Turret {
     public static boolean get() {
         return turret.get() < 0.1;
     }
-
-    public static boolean isAtSpd() {
-        return true;
-    }
-
 }

@@ -32,8 +32,19 @@ public class LL_IO {
         }
     }
 
+    public static int llOnTarget(double db) {
+        if(llHasTarget()){
+            if(getLLX() < db) return -1;
+            if(getLLX() > db) return 1;
+        }
+        return 0;
+    }
+
+    public static int llOnTarget() {
+        return llOnTarget(3.0);
+    }
+
     public static double getLLX() {
-    
         return limeTable.getEntry("tx").getDouble(0);
     }
 

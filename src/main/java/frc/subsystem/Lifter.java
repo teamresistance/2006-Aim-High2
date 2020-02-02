@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.Victor;
 
 import frc.io.hdw_io.IO;
 import frc.io.joysticks.JS_IO;
+import frc.io.limelight.LL_IO;
 import frc.util.timers.OnDly;
 import frc.util.timers.OnOffDly;
 
@@ -49,6 +50,12 @@ public class Lifter {
         state = 0;
         if(JS_IO.lifterUp.get()) state = 1;
         if(JS_IO.lifterDn.get()) state = 2;
+
+        if(JS_IO.shooterRun.get() && Shooter.isAtSpd() &&
+           LL_IO.llOnTarget(3.0) == 0 ){
+            state = 1;
+        }
+
         if(Turret.lifterReq) state = 1;
     }
 

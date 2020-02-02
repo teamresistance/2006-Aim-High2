@@ -87,7 +87,7 @@ public class Shooter {
 
     // I am the determinator
     private static void determ() {
-        if (JS_IO.shooterRun.get()) state = 1;  //GP6, Shoot or idle
+        if (JS_IO.shooterRun.onButtonReleased()) state = 1;  //GP6, Shoot or idle
         if (JS_IO.shooterStop.get()) state = 0; //GP5, Stop
         shooter.setSelectedSensorPosition(0,0,0);
             
