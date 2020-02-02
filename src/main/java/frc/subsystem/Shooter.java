@@ -120,14 +120,12 @@ public class Shooter {
             break;
         case 1: // Shoot at default rpm else percent
             cmdUpdate( shtrCtlRPM ? rpm_SP : pct_SP );
-            // if( rpm_FB - rpm_SP < -200) state =2;
             prvState = state;
             if (JS_IO.shooterRun.onButtonReleased())
                 state = 3;
             break;
         case 2: // Shooter slow, bump to 100% to compensate
             cmdUpdate( shtrCtlRPM ? 6800.0 : 1.0 );
-            // if( rpm_FB - rpm_SP > 100) state =1;
             if (!JS_IO.shooterRun.get())
                 state = 3;
             prvState = state;

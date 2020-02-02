@@ -122,7 +122,7 @@ public class Turret {
         case 3: // SP = 0.  Now ctl Prop to LL
             turretSP = 0.0;
             if (LL_IO.llHasTarget()) {
-                cmdUpdate(propCtl(0.0, LL_IO.getLLX(), 15.0 ));
+                cmdUpdate(propCtl(0.0, LL_IO.getLLX(), 10.0 ));
             }
             prvState = state;
             break;
@@ -170,7 +170,7 @@ public class Turret {
     // Returns proportional response. Poorman's P Loop
     public static double propCtl(double sp, double fb, double pb) {
         double err = fb - sp;
-        if (Math.abs(err) > 1.0) {  //Calc when in DB
+        if (Math.abs(err) > 1.0) {  //Calc when out of DB
             err = BotMath.Span(err, -pb, pb, 1.0, -1.0, true, false);
             return Math.abs(err) > 0.2 ? err : err > 0.0 ? 0.2 : -0.2;  //Min spd when in DB
         }

@@ -33,6 +33,7 @@ public class Lifter {
     private static int state;
     private static int prvState;
     private static boolean prvLifterReq = false;
+    private static OnDly shOnDly = new OnDly( 100 );
     private static OnDly llOnDly = new OnDly( 250 );
 
     //Constructor
@@ -53,10 +54,10 @@ public class Lifter {
         if(JS_IO.lifterDn.get()) state = 2;
 
         if(JS_IO.shooterRun.get() &&
-           Shooter.isAtSpd() &&
-           LL_IO.llHasTarget() &&
-           llOnDly.get(LL_IO.llOnTarget(3.0) == 0 )){
-               
+            shOnDly.get(Shooter.isAtSpd()) &&
+            LL_IO.llHasTarget() &&
+            llOnDly.get(LL_IO.llOnTarget(3.0) == 0 )){
+
             state = 1;
         }
 
