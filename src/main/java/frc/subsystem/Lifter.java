@@ -30,11 +30,12 @@ public class Lifter {
 
     private static double lifterPct = 0.30;
     private static double shtrRpm_db = 500;
+    private static double shtrRpm_dly = 100;
 
     private static int state;
     private static int prvState;
     private static boolean prvLifterReq = false;
-    private static OnDly shOnDly = new OnDly( 100 );
+    private static OnDly shOnDly = new OnDly( shtrRpm_dly );
     private static OnDly llOnDly = new OnDly( 250 );
 
     //Constructor
@@ -45,6 +46,7 @@ public class Lifter {
     public static void init() {
         SmartDashboard.putNumber("Lift Spd", lifterPct);
         SmartDashboard.putNumber("Lift Shtr DB", shtrRpm_db);
+        SmartDashboard.putNumber("Lift Shtr Dly", shtrRpm_dly);
         cmdUpdate(0.0);
         state = 0;
     }
@@ -54,12 +56,12 @@ public class Lifter {
         state = 0;
         if(JS_IO.lifterUp.get()) state = 1;
         if(JS_IO.lifterDn.get()) state = 2;
-        System.out.println("run " + JS_IO.shooterRun.get() +
-                            "/t shtr " + Shooter.isAtSpd() +
-                            "/t LL " + LL_IO.llOnTarget(3.0));
+        // System.out.println("run " + JS_IO.shooterRun.get() +
+        //                     "/t shtr " + Shooter.isAtSpd() +
+        //                     "/t LL " + LL_IO.llOnTarget(3.0));
 
         if(JS_IO.shooterRun.get() &&
-            shOnDly.get(Shooter.isAtSpd(500)) &&
+            shOnDly.get(Shooter.isAtSpd(shtrRpm_db)) &&
             LL_IO.llHasTarget() &&
             llOnDly.get(LL_IO.llOnTarget(3.0) == 0 )){
 
@@ -99,7 +101,8 @@ public class Lifter {
     private static void sdbUpdate(){
         SmartDashboard.putBoolean("lifter req", Turret.lifterReq);
         lifterPct = SmartDashboard.getNumber("Lift Spd", 0.7);
-        shtrRpm_db = SmartDashboard.getNumber("Lift Shtr DB", shtrRpm_db);
+        shtrRpm_db = (int) SmartDashboard.getNumber("Lift Shtr DB", shtrRpm_db);
+        shtrRpm_dly = (int) SmartDashboard.getNumber("Lift Shtr Dly", shtrRpm_dly);
     }
 
     // Send commands to shooter motor

@@ -141,6 +141,7 @@ public class Turret {
 
     // Smartdashboard shtuff
     private static void sdbUpdate() {
+        SmartDashboard.putNumber("Turret State", state);
         SmartDashboard.putNumber("Turret Spd", turretPct);
         SmartDashboard.putNumber("Turret SP", turretSP);
         SmartDashboard.putNumber("Turret FB", turretFB);
@@ -155,7 +156,7 @@ public class Turret {
 
     // Send commands to turret motor
     private static void cmdUpdate(double spd) {
-        if ((IO.turretCCWCntr.get() > 0 || turretFB > 80.0) && spd < 0)
+        if ((IO.turretCCWCntr.get() > 0 || turretFB > 85.0) && spd < 0)
             spd = 0;
         if ((IO.turretCWCntr.get() > 0 || turretFB < -80.0) && spd > 0)
             spd = 0;

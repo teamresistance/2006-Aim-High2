@@ -35,7 +35,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
 import frc.io.joysticks.JS_IO;
 import frc.util.timers.OnDly;
-import frc.util.timers.OnOffDly;
 
 public class Shooter {
     private static TalonSRX shooter = IO.shooter;
@@ -44,17 +43,19 @@ public class Shooter {
     private static double pct_SP = 0.7;
     private static double pctIdleSP = 0.3;
 
-    public static double rpm_SP = 4400.0;
+    public static double rpm_SP = 4550.0;
     public static double rpmIdleSP = 1000.0;
-    public static double rpm_kP = 55;
+    public static double rpm_kP = 3.5;
     public static double rpm_kI = 0.0;
     public static double rpm_kD = 0.0;
-    public static double rpm_kF = 1.47;
+    // public static double rpm_kF = 1.47;
+    public static double rpm_kF = 1.92;
     public static double rpm_FB = 0.0;
 
     private static int state;
     private static int prvState;
     private static int prvShooterReq = 0;
+    private static OnDly mtrStartupDly = new OnDly(500);
 
     // Constructor
     public Shooter() {
@@ -87,9 +88,9 @@ public class Shooter {
 
     // I am the determinator
     private static void determ() {
-        if (JS_IO.shooterRun.onButtonReleased()) state = 1;  //GP6, Shoot or idle
+        if (JS_IO.shooterRun.onButtonPressed()) state = 1;  //GP6, Shoot or idle
         if (JS_IO.shooterStop.get()) state = 0; //GP5, Stop
-        shooter.setSelectedSensorPosition(0,0,0);
+        // shooter.setSelectedSensorPosition(0,0,0);
             
         //shooterReq 0-off, 1=idle, 2=sp
         if(Turret.shooterReq != prvShooterReq){
@@ -116,16 +117,24 @@ public class Shooter {
         switch (state) {
         case 0: // Default, mtr=0.0
             cmdUpdate(0.0);
+            rpm_kI = 0.0;
             prvState = state;
             break;
         case 1: // Shoot at default rpm else percent
             cmdUpdate( shtrCtlRPM ? rpm_SP : pct_SP );
+            //--- Wait for motor windup
+            if( mtrStartupDly.get(state == prvState)){
+                // if(Shooter.rpm_FB < rpm_SP - 200.0 ) rpm_kI += 0.005;
+                // if(Shooter.rpm_FB > rpm_SP + 200.0 ) rpm_kI -= 0.00005;
+            }
             prvState = state;
-            if (JS_IO.shooterRun.onButtonReleased())
-                state = 3;
+            // if (JS_IO.shooterRun.onButtonReleased())
+            //     state = 3;
+            //--- Then implement kI (or sumpin else)
             break;
         case 2: // Shooter slow, bump to 100% to compensate
             cmdUpdate( shtrCtlRPM ? 6800.0 : 1.0 );
+            if(Shooter.rpm_FB > rpm_SP + 500.0 ) state = 1;
             if (!JS_IO.shooterRun.get())
                 state = 3;
             prvState = state;
@@ -136,6 +145,7 @@ public class Shooter {
             break;
         default: // Default, mtr=0.0
             cmdUpdate( 0.0 );
+            rpm_kI = 0.0;
             prvState = state;
             System.out.println("Bad Shooter state - " + state);
             break;
@@ -151,15 +161,15 @@ public class Shooter {
         SmartDashboard.putNumber("enc position", shooter.getSelectedSensorPosition());
         SmartDashboard.putNumber("enc velocity", shooter.getSelectedSensorVelocity());
         SmartDashboard.putNumber("RPM", rpm_FB);
-        SmartDashboard.putNumber("MtrOutPct", (shooter.getMotorOutputPercent() * 600) / 47);    //???
+        SmartDashboard.putNumber("MtrOutPct", (shooter.getMotorOutputPercent()));
         SmartDashboard.putNumber("prv shtr req", prvShooterReq);
 
         rpm_SP = SmartDashboard.getNumber("RPM SP", rpm_SP);
-        rpmIdleSP = SmartDashboard.getNumber("RMP Idle SP", rpmIdleSP);
-        rpm_kP = SmartDashboard.getNumber("RMP kP", rpm_kP);
-        rpm_kI = SmartDashboard.getNumber("RMP kI", rpm_kI);
-        rpm_kD = SmartDashboard.getNumber("RMP kD", rpm_kD);
-        rpm_kF = SmartDashboard.getNumber("RMP kF", rpm_kF);
+        rpmIdleSP = SmartDashboard.getNumber("RPM Idle SP", rpmIdleSP);
+        rpm_kP = SmartDashboard.getNumber("RPM kP", rpm_kP);
+        // rpm_kI = SmartDashboard.getNumber("RPM kI", rpm_kI);
+        rpm_kD = SmartDashboard.getNumber("RPM kD", rpm_kD);
+        rpm_kF = SmartDashboard.getNumber("RPM kF", rpm_kF);
         shooter.config_kP(0, rpm_kP);
         shooter.config_kI(0, rpm_kI);
         shooter.config_kD(0, rpm_kD);
@@ -183,7 +193,7 @@ public class Shooter {
 
     // Chk rpm if state 4 use rpm else pct.  May need to add OnOffDly 
     public static boolean isAtSpd(double rpm_db) {
-        if(state == 4)
+        if(shtrCtlRPM)
             return Math.abs(rpm_SP - rpm_FB) < rpm_db; //rpm_DB
         return Math.abs(shooter.getMotorOutputPercent() - pct_SP) < 0.2;    //pct db
     }
