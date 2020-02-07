@@ -32,6 +32,7 @@ public class LL_IO {
         }
     }
 
+    // if hastarget, -1=right, 1=left, 0=on target else null=no target
     public static Integer llOnTarget(double db) {
         double tmpD = getLLX();
         if(llHasTarget()){

@@ -57,7 +57,7 @@ public class Lifter {
         if(JS_IO.lifterDn.get()) state = 2;
 
         lifterEnaNum = getEnaNum();
-        if(lifterEnaNum > 14) state = 1;
+        if(lifterEnaNum > 6) state = 1;
     }
 
     public static void update() {
@@ -96,13 +96,15 @@ public class Lifter {
         return Math.abs(lifter.get()) < -0.1;
     }
 
+    // 1=JS btn pressed + 2=shooter above limit + 4=LL on target
     private static int getEnaNum(){
         int tmp = 0;
         if(JS_IO.shooterRun.get()) tmp += 1;
-        if(shOnDly.get(Shooter.isAtSpd(shtrRpm_db))) tmp += 2;
-        if(LL_IO.llHasTarget()) tmp += 4;
-        if(llOnDly.get(true)) tmp += 8;
-        // if(llOnDly.get(LL_IO.llOnTarget(3.0) == 0)) tmp += 8;
+        if(shOnDly.get(Shooter.getRpmFB() > 4400.0)) tmp += 2;
+        // if(shOnDly.get(Shooter.isAtSpd(shtrRpm_db))) tmp += 2;
+        if(LL_IO.llOnTarget(3.0) != null){  //Do we see a target?
+            if(llOnDly.get(LL_IO.llOnTarget(3.0) == 0)) tmp += 4;
+        }
         return tmp;
     }
 

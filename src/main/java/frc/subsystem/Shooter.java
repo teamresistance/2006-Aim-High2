@@ -184,6 +184,10 @@ public class Shooter {
         return shooter.getMotorOutputPercent() < 0.1;
     }
 
+    public static double getRpmFB(){
+        return rpm_FB;
+    }
+
     // Chk rpm if state 4 use rpm else pct.  May need to add OnOffDly 
     public static boolean isAtSpd(double rpm_db) {
         if(shtrCtlRPM)
