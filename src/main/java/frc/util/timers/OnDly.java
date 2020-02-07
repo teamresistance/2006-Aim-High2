@@ -12,24 +12,28 @@ Desc:
 
 public class OnDly{
     private static long currentMSec;        //Current system mSeconds
-    private boolean statOnDly = false;      // status of on delay
+    public boolean statOnDly = false;      // status of on delay
     private boolean prvTrigger;             // previous state of the trigger
+    private int odID = 0;
 
     private long delayOnTm;                 // mSeconds to use for delay
     private long delayOnTmr;                // timer used by the delay
 
     // Constructor for a timer in mSeconds.
-    public OnDly( long delay ){
+    public OnDly( long delay, int inodID ){
+        odID = inodID;
         setTm(delay);
     }
 
     // Constructor for a timer in Seconds.
-    public OnDly( double delay ){
+    public OnDly( double delay, int inodID ){
+        odID = inodID;
         setTm(delay);
     }
 
     // Constructor for a timer default time of 100 mSeconds.
     public OnDly(){
+        odID = 100;
         setTm(100);
     }
 
@@ -38,18 +42,20 @@ public class OnDly{
         currentMSec = System.currentTimeMillis();
 
         //0 - On delay, wait delayTm before returning true.  False when trigger goes false
-        if( trigger != prvTrigger ) delayOnTmr = trigger ? currentMSec + delayOnTm : 0;
-        statOnDly = trigger && currentMSec > delayOnTmr;
-
+        if( trigger != prvTrigger ){
+            delayOnTmr = trigger ? currentMSec + delayOnTm : 0;
+        }
         prvTrigger = trigger;
+        statOnDly = trigger && (currentMSec > delayOnTmr);
         return statOnDly;
     }
 
-    public boolean get(){ return statOnDly; }
+    public boolean get(){
+        return statOnDly;
+    }
 
     public void setTm(long onDly){
-        this.delayOnTm = onDly > 0 ? onDly : 100;
-        currentMSec = System.currentTimeMillis();
+        delayOnTm = (long) (onDly > 0 ? onDly : 100);
     }    
 
     public void setTm(double onDly){

@@ -13,21 +13,18 @@ A pot is used to limit rotation from -135 to 135 with 0 being forward and setpoi
 Sequence:
 (0)Default, the motor is set to 0.0, off.
 (1)JS used to manually rotate.
-(2)If a POV is pressed switch to setpoint control, for testing. 0/45/90/.../315
-(3)Chgs SP to 0 then rotates forward.
+(2)Control prop to pov sp (-135, -90,...,90,135) with to pot fb. If 180 is pressed turn off turret.
+(3)Limelight control by Prop to LL
+(4)Limelight control by DB to LL
 */
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.Victor;
 
 import frc.io.hdw_io.IO;
 import frc.io.joysticks.JS_IO;
 import frc.io.limelight.LL_IO;
 import frc.util.BotMath;
-import frc.util.timers.OnDly;
-import frc.util.timers.OnOffDly;
 
 public class Turret {
     private static Victor turret = IO.turret;
@@ -42,70 +39,46 @@ public class Turret {
     private static int state;
     private static int prvState;
 
-    private static int llState = 0;
-
-    public static int shooterReq = 0;           // Test, Request shoot to rpm
-    public static boolean lifterReq = false;    // Test, Request lifter
-
     // Constructor
     public Turret() {
         init();
     }
 
     public static void init() {
-        llState = 0;
+        sdbInit();
         cmdUpdate(0.0);
         state = 0;
     }
 
     // I am the determinator
     private static void determ() {
-        if(JS_IO.shooterRun.onButtonPressed()) state = 3;   //GP6
-        if(JS_IO.shooterStop.onButtonPressed()) state = 0;  //GP5
-        if (JS_IO.turretJSDir.get()) state = 1; //GP7, Ctl by JSs
+        if (JS_IO.turretJSDir.get()) state = 1;     //GP7, Ctl by JSs
         if (JS_IO.turretLLProp.get()) state = 3;    //GP8, Ctl Prop to LL
-        if (JS_IO.turretLLDB.get()) state = 4;      //GP10, Ctl to LL fixed spd w/DB
+        if (JS_IO.turretLLDB.get()) state = 4;      //GP10, Ctl fixed spd w/DB to LL
 
-        if (!JS_IO.turretSP.isNone()) {         //POV pressed switch to POV SP
+        if(JS_IO.shooterRun.onButtonPressed()) state = 3;   //GP6, Ctl Prop to LL
+        if(JS_IO.shooterStop.onButtonPressed()) state = 0;  //GP5, Stop ctl
+
+        if (!JS_IO.turretSP.isNone()) {         //POV pressed switch to POV SP, ctl prop to pot
             //QnD Debounce for the pov.
             if(JS_IO.turretSP.get() != prvturPov){
                 prvturPov = JS_IO.turretSP.get();
             }else{
                 turretSP = JS_IO.turretSP.get();
             }
-            if( turretSP > 180) turretSP -= 360.0;  // Should be -135 to 180 (limit -90 t0 90)
-            state = turretSP == 180.0 ? 0 : 2;      // If 180 pressed go to 0
-        }
-
-        //Test btn when pressed starts the turret/shooter/lifter sequence.
-        //This allows to push bot and control shooting.
-        //1 prs target & idle shooter, 2 prs shtr to sp, 3 prs lift, 4 prs back to 0ff
-        if( JS_IO.shooterStop.get()) turSeqCntr = 10;
-        switch( turSeqCntr){
-            case 0:
-            break;
-            case 1:
-                shooterReq = LL_IO.llHasTarget() ? 2 : 1;   // at SP else idle
-            break;
-            case 2:
-                lifterReq = LL_IO.llHasTarget() && Shooter.isAtSpd();
-            break;
-            default:
-                shooterReq = 0;
-                lifterReq = false;
-                turSeqCntr = 0;
-                state = 0;
-            break;
+            if( turretSP > 180) turretSP -= 360.0;  // Should be -180 to 180 (limit -90 t0 90)
+            state = turretSP == 180.0 ? 0 : 2;      // If 180 pressed go to state 0 else rotate to pot
         }
     }
 
+    // State machine
     public static void update() {
         sdbUpdate();
         determ();
         // ------------- Main State Machine --------------
         // cmd update( shooter speed )
         switch (state) {
-        case 0: // Default, mtr=0.0
+        case 0: // Start off, mtr=0.0
             turretPct = 0.0;
             cmdUpdate(turretPct);
             prvState = state;
@@ -115,18 +88,18 @@ public class Turret {
             cmdUpdate(turretPct);
             prvState = state;
             break;
-        case 2: // Control pov sp & to pot fb
+        case 2: // Control prop to pov sp with to pot fb
             cmdUpdate(propCtl(turretSP, turretFB, -20.0 ));
             prvState = state;
             break;
-        case 3: // SP = 0.  Now ctl Prop to LL
+        case 3: // Limelight control by Prop to LL
             turretSP = 0.0;
             if (LL_IO.llHasTarget()) {
                 cmdUpdate(propCtl(0.0, LL_IO.getLLX(), 10.0 ));
             }
             prvState = state;
             break;
-        case 4: // limelight control
+        case 4: // Limelight control by DB to LL
             if(!(LL_IO.llOnTarget() == null)) {
                 cmdUpdate(LL_IO.llOnTarget(3.0) * 0.5);
             }
@@ -137,6 +110,11 @@ public class Turret {
             System.out.println("Bad Turret state - " + state);
             break;
         }
+    }
+
+    // Initialize Smartdashboard shtuff
+    private static void sdbInit(){
+        //None at this time.
     }
 
     // Smartdashboard shtuff
@@ -156,16 +134,14 @@ public class Turret {
 
     // Send commands to turret motor
     private static void cmdUpdate(double spd) {
-        if ((IO.turretCCWCntr.get() > 0 || turretFB > 85.0) && spd < 0)
-            spd = 0;
-        if ((IO.turretCWCntr.get() > 0 || turretFB < -80.0) && spd > 0)
-            spd = 0;
+        //--- CRITICAL SAFETY! ---- Limit travel from -90 to 90 by pot or limit switches.
+        if ((IO.turretCCWCntr.get() > 0 || turretFB > 85.0) && spd < 0) spd = 0;
+        if ((IO.turretCWCntr.get() > 0 || turretFB < -80.0) && spd > 0) spd = 0;
+        if (spd > 0.3) IO.turretCCWCntr.reset();    //Clear CCW ES trap when moving CW
+        if (spd < -0.3) IO.turretCWCntr.reset();    //Clear CW ES trap when moving CCW
+
         SmartDashboard.putNumber("Turret Spd Out", spd);
         turret.set(spd);
-        if (spd > 0.3)
-            IO.turretCCWCntr.reset();
-        if (spd < -0.3)
-            IO.turretCWCntr.reset();
     }
 
     // Returns proportional response. Poorman's P Loop

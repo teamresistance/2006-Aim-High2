@@ -30,13 +30,14 @@ public class Lifter {
 
     private static double lifterPct = 0.30;
     private static double shtrRpm_db = 500;
-    private static double shtrRpm_dly = 100;
+    private static long shtrRpm_dly = 100;
 
     private static int state;
     private static int prvState;
     private static boolean prvLifterReq = false;
-    private static OnDly shOnDly = new OnDly( shtrRpm_dly );
-    private static OnDly llOnDly = new OnDly( 250 );
+    private static int lifterEnaNum = 0;
+    private static OnDly shOnDly = new OnDly( shtrRpm_dly, 2 );
+    private static OnDly llOnDly = new OnDly( 250, 3 );
 
     //Constructor
     public Lifter() {
@@ -44,9 +45,7 @@ public class Lifter {
     }
 
     public static void init() {
-        SmartDashboard.putNumber("Lift Spd", lifterPct);
-        SmartDashboard.putNumber("Lift Shtr DB", shtrRpm_db);
-        SmartDashboard.putNumber("Lift Shtr Dly", shtrRpm_dly);
+        sdbInit();
         cmdUpdate(0.0);
         state = 0;
     }
@@ -56,19 +55,9 @@ public class Lifter {
         state = 0;
         if(JS_IO.lifterUp.get()) state = 1;
         if(JS_IO.lifterDn.get()) state = 2;
-        // System.out.println("run " + JS_IO.shooterRun.get() +
-        //                     "/t shtr " + Shooter.isAtSpd() +
-        //                     "/t LL " + LL_IO.llOnTarget(3.0));
 
-        if(JS_IO.shooterRun.get() &&
-            shOnDly.get(Shooter.isAtSpd(shtrRpm_db)) &&
-            LL_IO.llHasTarget() &&
-            llOnDly.get(LL_IO.llOnTarget(3.0) == 0 )){
-
-            state = 1;
-        }
-
-        if(Turret.lifterReq) state = 1;
+        lifterEnaNum = getEnaNum();
+        if(lifterEnaNum > 14) state = 1;
     }
 
     public static void update() {
@@ -97,14 +86,6 @@ public class Lifter {
         }
     }
 
-    // Smartdashboard shtuff
-    private static void sdbUpdate(){
-        SmartDashboard.putBoolean("lifter req", Turret.lifterReq);
-        lifterPct = SmartDashboard.getNumber("Lift Spd", 0.7);
-        shtrRpm_db = (int) SmartDashboard.getNumber("Lift Shtr DB", shtrRpm_db);
-        shtrRpm_dly = (int) SmartDashboard.getNumber("Lift Shtr Dly", shtrRpm_dly);
-    }
-
     // Send commands to shooter motor
     private static void cmdUpdate(double spd){
         lifter.set(spd);
@@ -113,5 +94,31 @@ public class Lifter {
     //Returns if motor is off.
     public static boolean get(){
         return Math.abs(lifter.get()) < -0.1;
+    }
+
+    private static int getEnaNum(){
+        int tmp = 0;
+        if(JS_IO.shooterRun.get()) tmp += 1;
+        if(shOnDly.get(Shooter.isAtSpd(shtrRpm_db))) tmp += 2;
+        if(LL_IO.llHasTarget()) tmp += 4;
+        if(llOnDly.get(true)) tmp += 8;
+        // if(llOnDly.get(LL_IO.llOnTarget(3.0) == 0)) tmp += 8;
+        return tmp;
+    }
+
+    // Initialize Smartdashboard shtuff
+    private static void sdbInit(){
+        SmartDashboard.putNumber("Lift Spd", lifterPct);
+        SmartDashboard.putNumber("Lift Shtr DB", shtrRpm_db);
+        SmartDashboard.putNumber("Lift Shtr Dly", shtrRpm_dly);
+    }
+
+    // Update Smartdashboard shtuff
+    private static void sdbUpdate(){
+        lifterPct = SmartDashboard.getNumber("Lift Spd", 0.7);
+        shtrRpm_db = (int) SmartDashboard.getNumber("Lift Shtr DB", shtrRpm_db);
+        shtrRpm_dly = (int) SmartDashboard.getNumber("Lift Shtr Dly", shtrRpm_dly);
+
+        SmartDashboard.putNumber("Lifter Ena Num", lifterEnaNum);
     }
 }
