@@ -25,7 +25,7 @@ public class BotMath{
             tmp = ( tmp * outDelta ) + outLo;
         }
 
-        // if( clamp ) tmp = Clamp(tmp, outLo, outHi );
+        if( clamp ) tmp = Clamp(tmp, outLo, outHi );
 
         return tmp;
     }

@@ -86,7 +86,7 @@ public class Shooter {
         if(JS_IO.shooterStop.get()) state = 0;             //GP5, Stop
 
         if(!shtrCtlRPM) state += 10;    // Do pct SPs
-        if(state == 10 && shtrCtlPMP) state = 14;   // Use Poorman's Prop
+        if(state == 11 && shtrCtlPMP) state = 14;   // Use Poorman's Prop
     }
 
     public static void update() {
@@ -125,6 +125,11 @@ public class Shooter {
             prvState = state;
             break;
         //--------- Handle Pct -----------
+        case 10: // Default, mtr=0.0 pct
+            cmdUpdate(0.0, false);
+            pct_WSP = pct_SSP;
+            prvState = state;
+            break;
         case 11: // Shoot at default pct
             cmdUpdate( pct_WSP, true);
 
@@ -166,9 +171,9 @@ public class Shooter {
 
     // Returns proportional response. Poorman's P Loop
     public static double propCtl(double sp, double fb, double pb) {
-        double err = fb - sp;
-        if (Math.abs(err) > 1.0) {  //Calc when out of DB
-            err = BotMath.Span(err, (rpm_WSP - pb), rpm_WSP, 1.0, 0.7, true, false);
+        double err = fb - sp;   // Not used here
+        if (Math.abs(err) > -1.0) {  //Calc when out of DB (always)
+            err = BotMath.Span(fb, rpm_WSP, (rpm_WSP - pb), 0.7, 1.0, true, false);
             return err;
         }
         return 0.0;

@@ -112,26 +112,6 @@ public class Turret {
         }
     }
 
-    // Initialize Smartdashboard shtuff
-    private static void sdbInit(){
-        //None at this time.
-    }
-
-    // Smartdashboard shtuff
-    private static void sdbUpdate() {
-        SmartDashboard.putNumber("Turret State", state);
-        SmartDashboard.putNumber("Turret Spd", turretPct);
-        SmartDashboard.putNumber("Turret SP", turretSP);
-        SmartDashboard.putNumber("Turret FB", turretFB);
-        SmartDashboard.putNumber("Turret CCW ES", IO.turretCCWCntr.get());
-        SmartDashboard.putNumber("Turret CW ES", IO.turretCWCntr.get());
-        SmartDashboard.putNumber("turret state", state);
-        SmartDashboard.putNumber("turret LLX", LL_IO.getLLX());
-        SmartDashboard.putNumber("tur seq cntr", turSeqCntr);
-
-        turretFB = IO.turretPot.get();
-    }
-
     // Send commands to turret motor
     private static void cmdUpdate(double spd) {
         //--- CRITICAL SAFETY! ---- Limit travel from -90 to 90 by pot or limit switches.
@@ -157,5 +137,25 @@ public class Turret {
     // Returns if motor is off.
     public static boolean get() {
         return turret.get() < 0.1;
+    }
+
+    // Initialize Smartdashboard shtuff
+    private static void sdbInit(){
+        //None at this time.
+    }
+
+    // Smartdashboard shtuff
+    private static void sdbUpdate() {
+        SmartDashboard.putNumber("Turret State", state);
+        SmartDashboard.putNumber("Turret Spd", turretPct);
+        SmartDashboard.putNumber("Turret SP", turretSP);
+        SmartDashboard.putNumber("Turret FB", turretFB);
+        SmartDashboard.putNumber("Turret CCW ES", IO.turretCCWCntr.get());
+        SmartDashboard.putNumber("Turret CW ES", IO.turretCWCntr.get());
+        SmartDashboard.putNumber("turret state", state);
+        SmartDashboard.putNumber("turret LLX", LL_IO.getLLX());
+        SmartDashboard.putNumber("tur seq cntr", turSeqCntr);
+
+        turretFB = IO.turretPot.get();
     }
 }
