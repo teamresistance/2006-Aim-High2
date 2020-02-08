@@ -2,6 +2,7 @@ package frc.util;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class BotMath{
     //------ Span methods -----------
@@ -33,9 +34,15 @@ public class BotMath{
     // inVal is limited between outLo & outHi
     public static double Clamp( double inVal, double outLo, double outHi){
         double tmp = Math.min(outLo, outHi);
-        if( inVal < tmp ) return tmp;
+        if( inVal < tmp ){
+            return tmp;
+        }
+
         tmp = Math.max(outLo, outHi);
-        if( inVal > tmp ) return tmp;
+        if( inVal > tmp ){
+            return tmp;
+        }
+
         return inVal;
     }
 

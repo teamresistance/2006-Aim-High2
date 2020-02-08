@@ -35,9 +35,9 @@ import frc.util.BotMath;
 public class Shooter {
     private static TalonSRX shooter = IO.shooter;
 
-    private static boolean shtrCtlRPM = false;
-    private static double rpm_WSP = 4550.0; // Working SP
-    public static double rpm_SSP = 4450.0;  // Start SP
+    private static boolean shtrCtlRPM = false;  //Angle at 40 deg
+    private static double rpm_WSP = 4050.0; // Working SP
+    public static double rpm_SSP = 4050.0;  // Start SP
     public static double rpm_BSP = 6800.0;  // Boost SP
     public static double rpm_ISP = 2200.0;  // Idle SP
     public static double rpm_kP = 3.5;
@@ -49,10 +49,10 @@ public class Shooter {
 
     private static boolean shtrCtlPMP = true;// Use Poorman's Prop
     private static double pct_WSP = 0.7;    // Working SP
-    public static double pct_SSP = 0.7;     // Start SP
-    public static double pct_BSP = 1.0;     // Boost SP
+    public static double pct_SSP = 0.45;     // Start SP
+    public static double pct_BSP = 0.85;     // Boost SP
     public static double pct_ISP = 0.3;     // Idle SP
-    public static double pct_PMP = 500.0;   // Poorman's PB
+    public static double pct_PMP = 300.0;   // Poorman's PB
 
     public static double ampTgr = 15.0;     // Switch to boost xxx_BSP
 
@@ -60,6 +60,7 @@ public class Shooter {
     private static int prvState;
     private static int prvShooterReq = 0;
     private static OnDly mtrRampUpDly = new OnDly(2000, 1);
+    private static double tmpD = 0.0;
 
     // Constructor
     public Shooter() {
@@ -85,7 +86,7 @@ public class Shooter {
         // if(JS_IO.shooterRun.onButtonReleased()) state = 3; //GP6, Shoot ISP
         if(JS_IO.shooterStop.get()) state = 0;             //GP5, Stop
 
-        if(!shtrCtlRPM) state += 10;    // Do pct SPs
+        if(state < 10 && !shtrCtlRPM) state += 10;    // Do pct SPs
         if(state == 11 && shtrCtlPMP) state = 14;   // Use Poorman's Prop
     }
 
@@ -97,6 +98,7 @@ public class Shooter {
         switch (state) {
         case 0: // Default, mtr=0.0 pct
             cmdUpdate(0.0, false);
+            rpm_WSP = rpm_SSP;
             pct_WSP = pct_SSP;
             prvState = state;
             break;
@@ -128,6 +130,7 @@ public class Shooter {
         case 10: // Default, mtr=0.0 pct
             cmdUpdate(0.0, false);
             pct_WSP = pct_SSP;
+            rpm_WSP = rpm_SSP;
             prvState = state;
             break;
         case 11: // Shoot at default pct
@@ -148,7 +151,8 @@ public class Shooter {
             prvState = state;
             break;
         case 14: // Shooter ctld by Poorman's Prop
-            cmdUpdate(propCtl(rpm_WSP, rpm_FB, pct_PMP ), false);
+            tmpD = propCtl(rpm_WSP, rpm_FB, pct_PMP );
+            cmdUpdate(tmpD, false);
             prvState = state;
             break;
         default: // Default, mtr=0.0
@@ -173,7 +177,7 @@ public class Shooter {
     public static double propCtl(double sp, double fb, double pb) {
         double err = fb - sp;   // Not used here
         if (Math.abs(err) > -1.0) {  //Calc when out of DB (always)
-            err = BotMath.Span(fb, rpm_WSP, (rpm_WSP - pb), 0.7, 1.0, true, false);
+            err = BotMath.Span(fb, sp, (sp - pb), pct_SSP, pct_BSP, true, false);
             return err;
         }
         return 0.0;

@@ -31,6 +31,7 @@ public class Lifter {
     private static double lifterPct = 0.30;
     private static double shtrRpm_db = 500;
     private static long shtrRpm_dly = 100;
+    private static boolean lifterShtrSU = false;
 
     private static int state;
     private static int prvState;
@@ -56,8 +57,11 @@ public class Lifter {
         if(JS_IO.lifterUp.get()) state = 1;
         if(JS_IO.lifterDn.get()) state = 2;
 
-        lifterEnaNum = getEnaNum();
-        if(lifterEnaNum > 6) state = 1;
+        if(Shooter.getRpmFB() > Shooter.rpm_SSP - 1000.0) lifterShtrSU = true;
+        if(lifterShtrSU){
+            lifterEnaNum = getEnaNum();
+            if(lifterEnaNum > 0) state = 1;
+        }
     }
 
     public static void update() {
@@ -69,6 +73,7 @@ public class Lifter {
         case 0: // Default, mtr=0.0
             cmdUpdate( 0.0 );
             prvState = state;
+            lifterShtrSU = false;
             break;
         case 1: // Move balls up
             cmdUpdate( lifterPct );
@@ -100,10 +105,10 @@ public class Lifter {
     private static int getEnaNum(){
         int tmp = 0;
         if(JS_IO.shooterRun.get()) tmp += 1;
-        if(shOnDly.get(Shooter.getRpmFB() > 4400.0)) tmp += 2;
+        if(shOnDly.get(Shooter.getRpmFB() > 4400.0)) tmp += 0;
         // if(shOnDly.get(Shooter.isAtSpd(shtrRpm_db))) tmp += 2;
         if(LL_IO.llOnTarget(3.0) != null){  //Do we see a target?
-            if(llOnDly.get(LL_IO.llOnTarget(3.0) == 0)) tmp += 4;
+            if(llOnDly.get(LL_IO.llOnTarget(3.0) == 0)) tmp += 0;
         }
         return tmp;
     }
@@ -122,5 +127,6 @@ public class Lifter {
         shtrRpm_dly = (int) SmartDashboard.getNumber("Lift Shtr Dly", shtrRpm_dly);
 
         SmartDashboard.putNumber("Lifter Ena Num", lifterEnaNum);
+        SmartDashboard.putBoolean("Lifter SSU Ena", lifterShtrSU);
     }
 }
