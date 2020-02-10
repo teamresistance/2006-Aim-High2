@@ -54,6 +54,11 @@ public class Shooter {
     public static double pct_ISP = 0.3;     // Idle SP
     public static double pct_PMP = 300.0;   // Poorman's PB
 
+    public static double pct_PIB = 500.0;   // Incr pct rpm band
+    public static double pct_PDB = 500.0;   // Decr pct rpm band
+    public static double pct_IPC = 0.05;   // Incr pct cmd
+    public static double pct_DPC = 0.01;   // Decr pct cmd
+
     public static double ampTgr = 15.0;     // Switch to boost xxx_BSP
 
     private static int state;
@@ -155,6 +160,13 @@ public class Shooter {
             cmdUpdate(tmpD, false);
             prvState = state;
             break;
+        case 15: // Shooter ctld Incrementally with Poorman's Prop
+            if(prvState != state) tmpD = pct_SSP;
+            tmpD = incrCtl(rpm_WSP, rpm_FB, pct_PMP );
+            tmpD = BotMath.Clamp(tmpD, pct_SSP, pct_BSP);
+            cmdUpdate(tmpD, false);
+            prvState = state;
+            break;
         default: // Default, mtr=0.0
             cmdUpdate( 0.0, false );
             prvState = state;
@@ -183,6 +195,16 @@ public class Shooter {
         return 0.0;
     }
 
+    // Returns incremental response. Poorman's P Loop
+    public static double incrCtl(double sp, double fb, double pb) {
+        double err = fb - sp;
+        if (err < 0) {  //Calc when out of DB (always)
+            err += BotMath.Span(fb, sp, (sp + pct_PIB), 0.0, pct_IPC, true, false);
+        } else {
+            err += BotMath.Span(fb, sp - pct_PDB, sp, pct_DPC, 0.0, true, false);
+        }
+        return 0.0;
+    }
     // Returns if motor is off.
     public static boolean get() {
         return shooter.getMotorOutputPercent() < 0.1;
@@ -226,6 +248,12 @@ public class Shooter {
         SmartDashboard.putNumber("RPM kD", rpm_kD);
         SmartDashboard.putNumber("RPM kF", rpm_kF);
         SmartDashboard.putNumber("RPM kB", rpm_kB);
+
+        SmartDashboard.putNumber("Pct inc band", pct_PIB);
+        SmartDashboard.putNumber("Pct dec band", pct_PDB);
+        SmartDashboard.putNumber("Inc pct cmd", pct_IPC);
+        SmartDashboard.putNumber("Dec pct cmd", pct_DPC);
+
     }
     // Update Smartdashboard shtuff
     private static void sdbUpdate() {
@@ -260,5 +288,10 @@ public class Shooter {
         SmartDashboard.putNumber("RPM", rpm_FB);
         SmartDashboard.putNumber("MtrOutPct", (shooter.getMotorOutputPercent()));
         SmartDashboard.putNumber("prv shtr req", prvShooterReq);
+
+        pct_PIB = SmartDashboard.getNumber("Pct inc band", pct_PIB);
+        pct_PDB = SmartDashboard.getNumber("Pct dec band", pct_PDB);
+        pct_IPC = SmartDashboard.getNumber("Inc pct cmd", pct_IPC);
+        pct_DPC = SmartDashboard.getNumber("Dec pct cmd", pct_DPC);
     }
 }
