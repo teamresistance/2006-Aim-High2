@@ -35,8 +35,8 @@ import frc.util.BotMath;
 public class Shooter {
     private static TalonSRX shooter = IO.shooter;
 
-    private static boolean shtrCtlRPM = false;  //Angle at 40 deg
-    private static double rpm_WSP = 4050.0; // Working SP
+    private static int shtrCtl = 1;  //0=RPM, 1=pct, 2=pct PMP, 3=New
+    private static double rpm_WSP = 4050.0; // Working SP, Angle at 40
     public static double rpm_SSP = 4050.0;  // Start SP
     public static double rpm_BSP = 6800.0;  // Boost SP
     public static double rpm_ISP = 2200.0;  // Idle SP
@@ -47,7 +47,6 @@ public class Shooter {
     public static double rpm_kB = 1.98;
     public static double rpm_FB = 0.0;
 
-    private static boolean shtrCtlPMP = true;// Use Poorman's Prop
     private static double pct_WSP = 0.7;    // Working SP
     public static double pct_SSP = 0.45;     // Start SP
     public static double pct_BSP = 0.85;     // Boost SP
@@ -66,6 +65,7 @@ public class Shooter {
     private static int prvShooterReq = 0;
     private static OnDly mtrRampUpDly = new OnDly(2000, 1);
     private static double tmpD = 0.0;
+    private static double shtrTalonAmp = 0.0;
 
     // Constructor
     public Shooter() {
@@ -87,12 +87,28 @@ public class Shooter {
     // I am the determinator
     // Note: shooterRun also triggers turret & lifter events
     private static void determ() {
-        if(JS_IO.shooterRun.onButtonPressed()) state = 1;  //GP6, Shoot WSP
-        // if(JS_IO.shooterRun.onButtonReleased()) state = 3; //GP6, Shoot ISP
-        if(JS_IO.shooterStop.get()) state = 0;             //GP5, Stop
-
-        if(state < 10 && !shtrCtlRPM) state += 10;    // Do pct SPs
-        if(state == 11 && shtrCtlPMP) state = 14;   // Use Poorman's Prop
+        switch(shtrCtl){
+            case 0: // ctl using RPM SPs
+                if(JS_IO.shooterRun.onButtonPressed()) state = 1;  //GP6, Shoot WSP
+                // if(JS_IO.shooterRun.onButtonReleased()) state = 3; //GP6, Shoot ISP
+                if(JS_IO.shooterStop.get()) state = 0;             //GP5, Stop
+                break;
+            case 1: // ctl using pct SPs
+                if(JS_IO.shooterRun.onButtonPressed()) state = 11;  //GP6, Shoot WSP
+                // if(JS_IO.shooterRun.onButtonReleased()) state = 13; //GP6, Shoot ISP
+                if(JS_IO.shooterStop.get()) state = 0;             //GP5, Stop
+                break;
+            case 2: // ctl using poorman's prop loop
+                if(JS_IO.shooterRun.onButtonPressed()) state = 14;  //GP6, Shoot WSP
+                // if(JS_IO.shooterRun.onButtonReleased()) state = 13; //GP6, Shoot ISP
+                if(JS_IO.shooterStop.get()) state = 0;             //GP5, Stop
+                break;
+            case 3: // New shooter, ctl using pct SPs
+                if(JS_IO.shooterRun.onButtonPressed()) state = 21;  //GP6, Shoot WSP
+                // if(JS_IO.shooterRun.onButtonReleased()) state = 3; //GP6, Shoot ISP
+                if(JS_IO.shooterStop.get()) state = 0;             //GP5, Stop
+                break;
+        }
     }
 
     public static void update() {
@@ -143,7 +159,7 @@ public class Shooter {
 
             // Switch to boost on after first ball
             if( mtrRampUpDly.get(state == prvState)){   // Wait for motor ramp up
-                if(IO.pdp.getCurrent(0) > ampTgr ) state = 2;      // Trigger on first ball
+                if(IO.pdp.getCurrent(0) > ampTgr ) state = 12;      // Trigger on first ball
             }
             prvState = state;
             break;
@@ -165,6 +181,20 @@ public class Shooter {
             tmpD = incrCtl(rpm_WSP, rpm_FB, pct_PMP );
             tmpD = BotMath.Clamp(tmpD, pct_SSP, pct_BSP);
             cmdUpdate(tmpD, false);
+            prvState = state;
+            break;
+        case 21: // Shoot at default pct
+            cmdUpdate( pct_SSP, false);
+            // Switch to boost after first ball
+            if( state == prvState){   // Wait breifly for motor ramp up
+                if(mtrRampUpDly.get(shtrTalonAmp > ampTgr )){
+                    state = 22;  // Trigger on first ball
+                }
+            }
+            prvState = state;
+            break;
+        case 22: // New Shooter ctld 2-Step
+            cmdUpdate(pct_BSP, false);
             prvState = state;
             break;
         default: // Default, mtr=0.0
@@ -216,7 +246,7 @@ public class Shooter {
 
     // Chk rpm if state 4 use rpm else pct.  May need to add OnOffDly 
     public static boolean isAtSpd(double rpm_db) {
-        if(shtrCtlRPM)
+        if(shtrCtl == 0)
             return Math.abs(rpm_WSP - rpm_FB) < rpm_db; //rpm_DB
         return Math.abs(shooter.getMotorOutputPercent() - pct_WSP) < 0.2;    //pct db
     }
@@ -229,14 +259,13 @@ public class Shooter {
     //Initialize Smartdashboard shtuff
     private static void sdbInit(){
         SmartDashboard.putNumber("Shooter State", state);
-        SmartDashboard.putBoolean("Ctl RPM", shtrCtlRPM);   //Ctl to RPM else pct
+        SmartDashboard.putNumber("Shooter Ctl", shtrCtl);   //Ctl to RPM else pct
         SmartDashboard.putNumber("Ball Amp Tgr", ampTgr);
 
         SmartDashboard.putNumber("Pct Workg SP", pct_WSP);
         SmartDashboard.putNumber("Pct Start SP", pct_SSP);
         SmartDashboard.putNumber("Pct Boost SP", pct_BSP);
         SmartDashboard.putNumber("Pct Idle SP", pct_ISP);
-        SmartDashboard.putNumber("Pct PMs PB", pct_PMP);
 
         SmartDashboard.putNumber("RPM Workg SP", rpm_WSP);
         SmartDashboard.putNumber("RPM Start SP", rpm_SSP);
@@ -253,19 +282,21 @@ public class Shooter {
         SmartDashboard.putNumber("Pct dec band", pct_PDB);
         SmartDashboard.putNumber("Inc pct cmd", pct_IPC);
         SmartDashboard.putNumber("Dec pct cmd", pct_DPC);
-
     }
     // Update Smartdashboard shtuff
     private static void sdbUpdate() {
+        shtrTalonAmp = IO.shooter.getSupplyCurrent();
+        SmartDashboard.putNumber("Shtr Talon Amp", shtrTalonAmp);
+        SmartDashboard.putNumber("Shtr  Stator A", IO.shooter.getStatorCurrent());
+
         SmartDashboard.putNumber("Shooter State", state);
-        shtrCtlRPM = SmartDashboard.getBoolean("Ctl RPM", shtrCtlRPM);
+        shtrCtl = (int)SmartDashboard.getNumber("Shooter Ctl", shtrCtl);
         ampTgr = SmartDashboard.getNumber("Pct Amp Tgr", ampTgr);
 
         SmartDashboard.putNumber("Pct Workg SP", pct_WSP);
         pct_SSP = SmartDashboard.getNumber("Pct Start SP", pct_SSP);
         pct_BSP = SmartDashboard.getNumber("Pct Boost SP", pct_BSP);
         pct_ISP = SmartDashboard.getNumber("Pct Idle SP", pct_ISP);
-        pct_PMP = SmartDashboard.getNumber("Pct PMs PB", pct_PMP);
 
         SmartDashboard.putNumber("RPM Workg SP", rpm_WSP);
         rpm_SSP = SmartDashboard.getNumber("RPM Start SP", rpm_SSP);
