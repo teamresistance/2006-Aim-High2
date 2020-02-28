@@ -71,7 +71,7 @@ public class Pov{
 	// test POV match
 	public boolean equals( int test ){ return test == get(); }
 	public boolean isNone(){ return get() < 0; }
-	public boolean isPressed(){ return get() > 0; }
+	public boolean isPressed(){ return get() >= 0; }
 	public boolean is0(){ return 0 == get(); }
 	public boolean is45(){ return 45 == get(); }
 	public boolean is90(){ return 90 == get(); }
