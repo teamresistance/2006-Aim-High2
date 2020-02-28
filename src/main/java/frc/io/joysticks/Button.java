@@ -25,18 +25,11 @@ public class Button{
 	private boolean pressed = true;
 	
 	// Constructor, normal
-	// Exists muxed with axisID, if GT 100 (LT 0) does not exist
 	public Button(Joystick injoystick, int inbuttonID) {
 		joystick = injoystick;
 		buttonID = inbuttonID;
 		exists = joystick != null;
 		existDflt = buttonID % 2 == 0 ? false : true;	// If even default true
-	}
-
-	// Constructor, defaults set to does not exist & false
-	public Button() {
-		exists = false;
-		existDflt = false;
 	}
 
 	// Constructor, defaults set to does not exist & passed value
@@ -45,12 +38,30 @@ public class Button{
 		existDflt = exDefault;
 	}
 
-	// assign a new joystick & button
+	// Constructor, defaults set to does not exist & false
+	public Button() {
+		exists = false;
+		existDflt = false;
+	}
+
+	// Assign a different joystick & button
 	public void setButton(Joystick injoystick, int inbuttonID){
 		joystick = injoystick;
 		buttonID = inbuttonID;
 		exists = joystick != null;
 		existDflt = buttonID % 2 == 0 ? false : true;	// If even default true
+	}
+
+	// Unassign button and sets default get() return to _default
+	public void setButton(boolean _default){
+		exists = false;
+		existDflt = _default;	// Assign default
+	}
+
+	// Unassign button and sets default get() return to false
+	public void setButton(){
+		exists = false;
+		existDflt = false;	// Assign false to default
 	}
 
 	// get current value

@@ -3,17 +3,10 @@ package frc.io.hdw_io;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.PIDSourceType;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Counter;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Victor;
-import edu.wpi.first.wpilibj.interfaces.Potentiometer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import edu.wpi.first.networktables.*;
 
 import frc.io.joysticks.JS_IO;
 
@@ -21,14 +14,23 @@ import com.revrobotics.ColorSensorV3;
 
 /* temp to fill with latest faults */
 import com.ctre.phoenix.motorcontrol.*;
-import com.ctre.phoenix.motorcontrol.can.*;
 
+import edu.wpi.first.wpilibj.SPI;
 import com.kauailabs.navx.frc.AHRS;
 
 public class IO {
+    // Drive
+    public static Victor drvMotor_L = new Victor(2);
+    public static Victor drvMotor_R = new Victor(3);
+    //Banner sensors shooting thru holes.  Not quad, no direction. Apply sign of power to get direction.
+    public static Counter whlEnc_L = new Counter(2);    //Banner sensor shooting thru holes
+    public static Counter whlEnc_R = new Counter(3);    //Banner sensor shooting thru holes
+    private static double distFPP_L = 0.39; //3.14 * 0.5 / 4; //0.39 est for 6" whl
+    private static double distFPP_R = 0.39; //3.14 * 0.5 / 4; //0.39 est for 6" whl
+
     // navX
     // public static NavX navX = new NavX();
-    public static AHRS ahrs;
+    public static AHRS ahrs = new AHRS(SPI.Port.kMXP);
 
     // PDP
     public static PowerDistributionPanel pdp = new PowerDistributionPanel(1);
@@ -43,10 +45,6 @@ public class IO {
 
     public static Counter turretCCWCntr = new Counter(0); // CCW counter
     public static Counter turretCWCntr = new Counter(1); // CW Counter
-    // Test button.  Allows me to push bot around w/o computer, GP.
-    // Press once to start shooter & LL target. Next press starts feeder
-    // Next press stop all?
-    public static Counter turretTestCntr = new Counter(9);
 
     // ---------- WoF, Color Sensor -----------------
     /**
@@ -64,6 +62,12 @@ public class IO {
     public static Faults _faults = new Faults(); /* temp to fill with latest faults */
 
     public static void init() {
+        whlEnc_L.setDistancePerPulse(distFPP_L);
+        whlEnc_R.setDistancePerPulse(distFPP_R);
+        whlEnc_L.reset();
+        whlEnc_R.reset();
+
+        ahrs.reset();
         shooter.setInverted(false);     //Inverts motor direction and encoder if attached
         shooter.setSensorPhase(false);  //Adjust this to correct phasing with motor
         turret.setInverted(false);
@@ -71,6 +75,11 @@ public class IO {
     }
 
     public static void update() {
+        // whlEnc_L.setReverseDirection(drvMotor_L.get() < 0.0);
+        // whlEnc_R.setReverseDirection(drvMotor_R.get() < 0.0);
+
+        SmartDashboard.putNumber("Dist L", IO.whlEnc_R.getDistance());
+        SmartDashboard.putNumber("Dist R", IO.whlEnc_R.getDistance());
         SmartDashboard.putNumber("Shooter Amps", pdp.getCurrent(0));
         SmartDashboard.putNumber("Turret Pot", turretPot.get());
 

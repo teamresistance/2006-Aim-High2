@@ -32,19 +32,19 @@ public class Axis{
 		exDefault = (inaxisID % 100)/10.0;	// get last 2 digits then divide by 10, 110=>1.0
 	}
 
-	// Constructor, defaults set to does not exist & 0.0
-	public Axis() {
-		this.exists = false;
-		this.exDefault = 0.0;
-	}
-
 	// Constructor, defaults set to does not exist & passed value
 	public Axis(double exDefault) {
 		this.exists = false;
 		this.exDefault = exDefault;
 	}
 
-	// assign a new joystick & button
+	// Constructor, defaults set to does not exist & 0.0
+	public Axis() {
+		this.exists = false;
+		this.exDefault = 0.0;
+	}
+
+	// Assign a different joystick & button
 	public void setAxis(Joystick injoystick, int inAxisID){
 		joystick = injoystick;
 		axisID = inAxisID;
@@ -52,8 +52,30 @@ public class Axis{
 		exDefault = (axisID % 100)/10.0;	// get last 2 digits then divide by 10, 110=>1.0
 	}
 
+	// Unassign button, Will now return assigned default value on a get().
+	public void setAxis(double _default){
+		exists = false;
+		exDefault = _default;	// assign default value
+	}
+
+	// Unassign button, Will now return 0.0 on a get().
+	public void setAxis(){
+		exists = false;
+		exDefault = 0.0;	// assign default as 0.0
+	}
+
 	// get the axis value
 	public double get() {
 		return exists ? joystick.getRawAxis(axisID) : exDefault;
+	}
+
+	// true if axis value is > db
+	public boolean isDown() {
+		return Math.abs(exists ? joystick.getRawAxis(axisID) : exDefault) > 0.2;
+	}
+
+	// true if axis value is < db
+	public boolean isUp() {
+		return !isDown();
 	}
 }

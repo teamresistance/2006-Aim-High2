@@ -15,6 +15,7 @@ import frc.io.hdw_io.TestColor1;
 import frc.io.hdw_io.TestColor2;
 import frc.io.joysticks.JS_IO;
 import frc.io.limelight.LL_IO;
+import frc.subsystem.drive.Drive;
 import frc.subsystem.Shooter;
 import frc.subsystem.Turret;
 import frc.subsystem.Lifter;
@@ -30,6 +31,7 @@ public class Robot extends TimedRobot {
         IO.init();
         LL_IO.init();
         JS_IO.init();
+        Drive.init();
         Shooter.init();
         Turret.init();
         Lifter.init();
@@ -71,6 +73,7 @@ public class Robot extends TimedRobot {
         IO.update();
         //LL_IO.update();
         LL_IO.sdbUpdate();
+        Drive.update();
         Shooter.update();
         Turret.update();
         Lifter.update();

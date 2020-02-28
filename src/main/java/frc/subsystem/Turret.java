@@ -59,16 +59,16 @@ public class Turret {
         if(JS_IO.shooterRun.onButtonPressed()) state = 3;   //GP6, Ctl Prop to LL
         if(JS_IO.shooterStop.onButtonPressed()) state = 0;  //GP5, Stop ctl
 
-        if (!JS_IO.turretSP.isNone()) {         //POV pressed switch to POV SP, ctl prop to pot
-            //QnD Debounce for the pov.
-            if(JS_IO.turretSP.get() != prvturPov){
-                prvturPov = JS_IO.turretSP.get();
-            }else{
-                turretSP = JS_IO.turretSP.get();
-            }
-            if( turretSP > 180) turretSP -= 360.0;  // Should be -180 to 180 (limit -90 t0 90)
-            state = turretSP == 180.0 ? 0 : 2;      // If 180 pressed go to state 0 else rotate to pot
-        }
+        // if (!JS_IO.turretSP.isNone()) {         //POV pressed switch to POV SP, ctl prop to pot
+        //     //QnD Debounce for the pov.
+        //     if(JS_IO.turretSP.get() != prvturPov){
+        //         prvturPov = JS_IO.turretSP.get();
+        //     }else{
+        //         turretSP = JS_IO.turretSP.get();
+        //     }
+        //     if( turretSP > 180) turretSP -= 360.0;  // Should be -180 to 180 (limit -90 t0 90)
+        //     state = turretSP == 180.0 ? 0 : 2;      // If 180 pressed go to state 0 else rotate to pot
+        // }
     }
 
     // State machine
@@ -128,7 +128,7 @@ public class Turret {
     public static double propCtl(double sp, double fb, double pb) {
         double err = fb - sp;
         if (Math.abs(err) > 1.0) {  //Calc when out of DB
-            err = BotMath.Span(err, -pb, pb, 1.0, -1.0, true, false);
+            err = BotMath.Span(err, -pb, pb, 1.0, -1.0, true, 0);
             return Math.abs(err) > 0.2 ? err : err > 0.0 ? 0.2 : -0.2;  //Min spd when in DB
         }
         return 0.0;
@@ -152,7 +152,6 @@ public class Turret {
         SmartDashboard.putNumber("Turret FB", turretFB);
         SmartDashboard.putNumber("Turret CCW ES", IO.turretCCWCntr.get());
         SmartDashboard.putNumber("Turret CW ES", IO.turretCWCntr.get());
-        SmartDashboard.putNumber("turret state", state);
         SmartDashboard.putNumber("turret LLX", LL_IO.getLLX());
         SmartDashboard.putNumber("tur seq cntr", turSeqCntr);
 

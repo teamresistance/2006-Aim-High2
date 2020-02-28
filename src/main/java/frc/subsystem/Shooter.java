@@ -35,7 +35,7 @@ import frc.util.BotMath;
 public class Shooter {
     private static TalonSRX shooter = IO.shooter;
 
-    private static int shtrCtl = 1;  //0=RPM, 1=pct, 2=pct PMP, 3=New
+    private static int shtrCtl = 0;  //0=RPM 2-step, 1=pct SPs, 2=pct PMP, 3=New shtr
     private static double rpm_WSP = 4050.0; // Working SP, Angle at 40
     public static double rpm_SSP = 4050.0;  // Start SP
     public static double rpm_BSP = 6800.0;  // Boost SP
@@ -63,7 +63,8 @@ public class Shooter {
     private static int state;
     private static int prvState;
     private static int prvShooterReq = 0;
-    private static OnDly mtrRampUpDly = new OnDly(2000, 1);
+    private static int mtrRmpTm = 1000;
+    private static OnDly mtrRampUpDly = new OnDly(mtrRmpTm, 1);
     private static double tmpD = 0.0;
     private static double shtrTalonAmp = 0.0;
 
@@ -219,7 +220,7 @@ public class Shooter {
     public static double propCtl(double sp, double fb, double pb) {
         double err = fb - sp;   // Not used here
         if (Math.abs(err) > -1.0) {  //Calc when out of DB (always)
-            err = BotMath.Span(fb, sp, (sp - pb), pct_SSP, pct_BSP, true, false);
+            err = BotMath.Span(fb, sp, (sp - pb), pct_SSP, pct_BSP, true, 0);
             return err;
         }
         return 0.0;
@@ -229,9 +230,9 @@ public class Shooter {
     public static double incrCtl(double sp, double fb, double pb) {
         double err = fb - sp;
         if (err < 0) {  //Calc when out of DB (always)
-            err += BotMath.Span(fb, sp, (sp + pct_PIB), 0.0, pct_IPC, true, false);
+            err += BotMath.Span(fb, sp, (sp + pct_PIB), 0.0, pct_IPC, true, 0);
         } else {
-            err += BotMath.Span(fb, sp - pct_PDB, sp, pct_DPC, 0.0, true, false);
+            err += BotMath.Span(fb, sp - pct_PDB, sp, pct_DPC, 0.0, true, 0);
         }
         return 0.0;
     }
@@ -261,6 +262,7 @@ public class Shooter {
         SmartDashboard.putNumber("Shooter State", state);
         SmartDashboard.putNumber("Shooter Ctl", shtrCtl);   //Ctl to RPM else pct
         SmartDashboard.putNumber("Ball Amp Tgr", ampTgr);
+        SmartDashboard.putNumber("Mtr Rmp Tm", mtrRmpTm);
 
         SmartDashboard.putNumber("Pct Workg SP", pct_WSP);
         SmartDashboard.putNumber("Pct Start SP", pct_SSP);
@@ -282,12 +284,17 @@ public class Shooter {
         SmartDashboard.putNumber("Pct dec band", pct_PDB);
         SmartDashboard.putNumber("Inc pct cmd", pct_IPC);
         SmartDashboard.putNumber("Dec pct cmd", pct_DPC);
+        SmartDashboard.putNumber("Pct PM PB", pct_PMP);
     }
     // Update Smartdashboard shtuff
     private static void sdbUpdate() {
         shtrTalonAmp = IO.shooter.getSupplyCurrent();
         SmartDashboard.putNumber("Shtr Talon Amp", shtrTalonAmp);
         SmartDashboard.putNumber("Shtr  Stator A", IO.shooter.getStatorCurrent());
+        if(mtrRmpTm != (int)SmartDashboard.getNumber("Mtr Rmp Tm", mtrRmpTm)){
+            mtrRmpTm = (int)SmartDashboard.getNumber("Mtr Rmp Tm", mtrRmpTm);
+            mtrRampUpDly.setTm(mtrRmpTm);
+        }
 
         SmartDashboard.putNumber("Shooter State", state);
         shtrCtl = (int)SmartDashboard.getNumber("Shooter Ctl", shtrCtl);
@@ -297,6 +304,7 @@ public class Shooter {
         pct_SSP = SmartDashboard.getNumber("Pct Start SP", pct_SSP);
         pct_BSP = SmartDashboard.getNumber("Pct Boost SP", pct_BSP);
         pct_ISP = SmartDashboard.getNumber("Pct Idle SP", pct_ISP);
+        pct_PMP = SmartDashboard.getNumber("Pct PM PB", pct_PMP);
 
         SmartDashboard.putNumber("RPM Workg SP", rpm_WSP);
         rpm_SSP = SmartDashboard.getNumber("RPM Start SP", rpm_SSP);

@@ -54,13 +54,13 @@ public class Lifter {
     // I am the determinator
     private static void determ(){
         state = 0;
-        if(JS_IO.lifterUp.get()) state = 1;
-        if(JS_IO.lifterDn.get()) state = 2;
+        if(JS_IO.lifterUp.get() || JS_IO.gp_LTgr.isDown()) state = 1;
+        if(JS_IO.lifterDn.get() || JS_IO.gp_RTgr.isDown()) state = 2;
 
         if(Shooter.getRpmFB() > Shooter.rpm_SSP - 1000.0) lifterShtrSU = true;
         if(lifterShtrSU){
             lifterEnaNum = getEnaNum();
-            if(lifterEnaNum > 0) state = 1;
+            if(lifterEnaNum > 8) state = 1;
         }
     }
 
@@ -105,10 +105,10 @@ public class Lifter {
     private static int getEnaNum(){
         int tmp = 0;
         if(JS_IO.shooterRun.get()) tmp += 1;
-        if(shOnDly.get(Shooter.getRpmFB() > 4400.0)) tmp += 0;
-        // if(shOnDly.get(Shooter.isAtSpd(shtrRpm_db))) tmp += 2;
+        // if(shOnDly.get(Shooter.getRpmFB() > 4400.0)) tmp += 0;
+        if(shOnDly.get(Shooter.isAtSpd(shtrRpm_db))) tmp += 2;
         if(LL_IO.llOnTarget(3.0) != null){  //Do we see a target?
-            if(llOnDly.get(LL_IO.llOnTarget(3.0) == 0)) tmp += 0;
+            if(llOnDly.get(LL_IO.llOnTarget(3.0) == 0)) tmp += 4;
         }
         return tmp;
     }

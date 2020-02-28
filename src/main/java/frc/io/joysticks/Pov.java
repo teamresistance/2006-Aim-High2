@@ -24,18 +24,11 @@ public class Pov{
 	private int existDflt;
 	
 	// Constructor, normal
-	// Exists muxed with axisID, if GT 1000 (LT -1000) does not exist, 1270=>270, -1=>-1
 	public Pov(Joystick injoystick, int inpovID) {
 		joystick = injoystick;
 		povID = inpovID;
 		exists = joystick != null;
 		existDflt = inpovID;		// null js, use pov default
-	}
-
-	// Constructor, defaults set to does not exist & 0.0
-	public Pov() {
-		exists = false;
-		existDflt = -1;
 	}
 
 	// Constructor, defaults set to does not exist & passed value
@@ -44,12 +37,30 @@ public class Pov{
 		existDflt = exDefault;
 	}
 
-	// assign a new joystick & POV
+	// Constructor, defaults set to does not exist & 0.0
+	public Pov() {
+		exists = false;
+		existDflt = -1;
+	}
+
+	// Assign a different joystick & POV
 	public void setPov(Joystick injoystick, int inpovID){
 		joystick = injoystick;
 		povID = inpovID;
 		exists = joystick != null;
 		existDflt = povID < 0 ? -1 : inpovID - (inpovID % 45);		// null js, use pov default
+	}
+
+	// Unassign joystick & and set a default
+	public void setPov(int _default){
+		exists = false;
+		existDflt = _default;		// assign default
+	}
+
+	// Unassign joystick & and set default to -1, no press
+	public void setPov(){
+		exists = false;
+		existDflt = -1;		// assign default as -1
 	}
 
 	// get POV value

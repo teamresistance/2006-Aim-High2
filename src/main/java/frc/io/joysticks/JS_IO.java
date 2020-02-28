@@ -26,7 +26,7 @@ import frc.io.joysticks.Pov;
 
 //Declares all joysticks, buttons, axis & pov's.
 public class JS_IO {
-    public static int jsConfig = 1; // 0=Joysticks, 1=left Joystick only, 2=gamePad only
+    public static int jsConfig = 1; // 0=Joysticks, 1=gamePad only, 2=left Joystick only
                                     // 3=Mixed LJS & GP, 4=Nintendo Pad
     // Declare all possible Joysticks
     public static Joystick leftJoystick = new Joystick(0);  // Left JS
@@ -36,9 +36,22 @@ public class JS_IO {
     public static Joystick neoPad = new Joystick(4);        // Nintendo style gamepad
     public static Joystick arJS[] = { leftJoystick, rightJoystick, coJoystick, gamePad, neoPad };
     // Declare all stick control
-    public static Axis leftDrive = new Axis();  // Left Drive
-    public static Axis rightDrive = new Axis(); // Right Drive
+    public static Axis dvrLY = new Axis();  // Left X
+    public static Axis dvrLX = new Axis();  // Right Y
+    public static Axis dvrRY = new Axis();  // Rotate X
+    public static Axis dvrRX = new Axis();  // Rotate Y
     public static Axis turretRot = new Axis();  // Rotate turret
+    public static Axis gp_LTgr = new Axis();  // gamepad only Left trigger
+    public static Axis gp_RTgr = new Axis();  // gamepad only Right trigger
+    // Drive buttons
+    public static Button offMode = new Button();    // Drive off
+    public static Button tankMode = new Button();   // Drive tank
+    public static Button arcadeMode = new Button(); // Drive arcade
+    public static Button autoTest = new Button();   // Test auto seq
+    public static Button resetGyro = new Button();  // Reset Gyro
+    public static Button resetDist = new Button();  // Reset Distance
+
+    public static Pov pov_SP = new Pov(); // Turn to SP with JS 0/45/90/.../315 minus 180
 
     // Turret buttons
     public static Button shooterRun = new Button(); // Run shooter run (trigger) else idle
@@ -47,8 +60,6 @@ public class JS_IO {
     public static Button turretJSDir = new Button();    // Directly rotate with JS
     public static Button turretLLDB = new Button();     //Rotate turret with LL using fixed spd w/ DB
     public static Button turretLLProp = new Button();   //Rotate turret prop using LL
-    public static Pov turretSP = new Pov(); // Rotate by Pot SP with JS 0/45/90/.../315 minus 180
-    public static Button turSeqStep = new Button();
     public static Button lifterUp = new Button();       // Run motor to lift balls
     public static Button lifterDn = new Button();       // Run motor to lower balls
 
@@ -72,6 +83,7 @@ public class JS_IO {
     }
 
     public static void configJS() { // Default Joystick else as gamepad
+        CaseDefault();
         switch (jsConfig) {
         case 0: // Normal 3 joystick config
             Norm3JS();
@@ -103,11 +115,22 @@ public class JS_IO {
 
     // ----------- Normal 3 Joysticks -------------
     private static void Norm3JS() {
-
         // All stick axisesssss
-        leftDrive = new Axis(leftJoystick, 1);
-        rightDrive.setAxis(rightJoystick, 1);
+        dvrLX.setAxis(leftJoystick, 0);
+        dvrLY.setAxis(leftJoystick, 1);
+        dvrRX.setAxis(rightJoystick, 0);
+        dvrRY.setAxis(rightJoystick, 1);
         turretRot.setAxis(coJoystick, 0);
+
+        // Drive mode buttons
+        offMode.setButton(rightJoystick, 2);
+        tankMode.setButton(rightJoystick, 3);
+        arcadeMode.setButton(rightJoystick, 4);
+        autoTest.setButton(rightJoystick, 8);
+        resetGyro.setButton(rightJoystick, 6);
+        resetDist.setButton(rightJoystick, 7);
+
+        pov_SP.setPov(coJoystick, 0);
 
         // Turret buttons
         shooterRun.setButton(rightJoystick, 1);
@@ -116,32 +139,38 @@ public class JS_IO {
         lifterDn.setButton(rightJoystick, 5);
 
         turretJSDir.setButton(coJoystick, 7);
-        turretSP.setPov(coJoystick, 0);
         turretLLProp.setButton(coJoystick, 9);
         turretLLDB.setButton(coJoystick, 8);
-
     }
 
     // ----- gamePad only --------
     private static void A_GP() {
-
         // All stick axisesssss
-        leftDrive.setAxis(gamePad, 1);
-        rightDrive.setAxis(gamePad, 5);
-        turretRot.setAxis(gamePad, 4); // Neg = CW, Pos = CCW
+        dvrRX.setAxis(gamePad, 4);
+        dvrRY.setAxis(gamePad, 5);
+        turretRot.setAxis(gamePad, 0);
+        gp_LTgr.setAxis(gamePad, 2);    //0.0 to 1.0 or isDown() GT 0.2
+        gp_RTgr.setAxis(gamePad, 3);
+
+        // Drive mode buttons
+        offMode.setButton(gamePad, 2);
+        // tankMode.setButton(gamePad, 2);
+        arcadeMode.setButton(gamePad, 3);
+        // autoTest.setButton(gamePad, 4);
+        resetGyro.setButton(gamePad, 10);
+        resetDist.setButton(gamePad, 9);
+
+        pov_SP.setPov(gamePad, 0);
 
         // Turret buttons
-        shooterRun.setButton(gamePad, 6);   //Run shooter at pct or rpm sp, select by sdb
-        shooterStop.setButton(gamePad, 5);  //Stop the shooter
-
+        shooterRun.setButton(gamePad, 6);
+        shooterStop.setButton(gamePad, 5);
         lifterUp.setButton(gamePad, 4);
         lifterDn.setButton(gamePad, 1);
 
-        turretLLDB.setButton(gamePad, 10);  //Rotate turret with LL using fixed spd w/ DB
-        turretLLProp.setButton(gamePad, 8); //Rotate turret prop using LL
-        turretJSDir.setButton(gamePad, 7);  //Rotate turret JS, GP axis4
-        turretSP.setPov(gamePad, 0);        //Rotate turret to pov setpt with pot fb.
-        turSeqStep.setButton(gamePad, 2);   //Sequence ll turret, shooter then lifter.
+        turretJSDir.setButton(gamePad, 7);
+        turretLLProp.setButton(gamePad, 8);
+        // turretLLDB.setButton(gamePad, 8);
     }
 
     // ------------ One Joystick only -----------
@@ -164,19 +193,31 @@ public class JS_IO {
 
     // ----------- Case Default -----------------
     private static void CaseDefault() {
-
         // All stick axisesssss
-        leftDrive.setAxis(null, 0);
-        rightDrive.setAxis(null, 0);
-        turretRot.setAxis(null, 0);
+        dvrLX.setAxis();
+        dvrLY.setAxis();
+        dvrRX.setAxis();
+        dvrRY.setAxis();
+        turretRot.setAxis();
+
+        // Drive mode buttons
+        offMode.setButton();
+        tankMode.setButton();
+        arcadeMode.setButton();
+        autoTest.setButton();
+        resetGyro.setButton();
+        resetDist.setButton();
+
+        pov_SP.setPov();
 
         // Turret buttons
-        shooterRun.setButton(null, 0);
-        shooterStop.setButton(null, 0);
-        lifterUp.setButton(null, 0);
-        lifterDn.setButton(null, 0);
+        shooterRun.setButton();
+        shooterStop.setButton();  //Stop drive also
+        lifterUp.setButton();
+        lifterDn.setButton();
 
-        turretJSDir.setButton(null, 0);
-        turretSP.setPov(null, -1);
+        turretJSDir.setButton();
+        turretLLProp.setButton();
+        // turretLLDB.setButton();
     }
 }
