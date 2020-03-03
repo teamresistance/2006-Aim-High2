@@ -55,10 +55,14 @@ public class Lifter {
     private static void determ(){
         state = 0;
         if(JS_IO.lifterUp.get() || JS_IO.gp_LTgr.isDown()) state = 1;
-        if(JS_IO.lifterDn.get() || JS_IO.gp_RTgr.isDown()) state = 2;
+        // if(JS_IO.lifterDn.get() || JS_IO.gp_RTgr.isDown()) state = 2;
+
+        if (JS_IO.povLifter.is0()) state = 1;
+        if (JS_IO.povLifter.is180()) state = 2;
 
         if(Shooter.getRpmFB() > Shooter.rpm_SSP - 1000.0) lifterShtrSU = true;
         if(lifterShtrSU){
+
             lifterEnaNum = getEnaNum();
             if(lifterEnaNum > 8) state = 1;
         }

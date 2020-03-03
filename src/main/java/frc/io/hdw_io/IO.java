@@ -62,6 +62,8 @@ public class IO {
     public static Faults _faults = new Faults(); /* temp to fill with latest faults */
 
     public static void init() {
+        drvMotor_L.setInverted(false);
+        drvMotor_R.setInverted(true);
         whlEnc_L.setDistancePerPulse(distFPP_L);
         whlEnc_R.setDistancePerPulse(distFPP_R);
         whlEnc_L.reset();
@@ -78,8 +80,10 @@ public class IO {
         // whlEnc_L.setReverseDirection(drvMotor_L.get() < 0.0);
         // whlEnc_R.setReverseDirection(drvMotor_R.get() < 0.0);
 
-        SmartDashboard.putNumber("Dist L", IO.whlEnc_R.getDistance());
-        SmartDashboard.putNumber("Dist R", IO.whlEnc_R.getDistance());
+        SmartDashboard.putNumber("Drv L Cmd", drvMotor_L.get());
+        SmartDashboard.putNumber("Drv R Cmd", drvMotor_R.get());
+        SmartDashboard.putNumber("Enc Dist L", IO.whlEnc_L.getDistance());
+        SmartDashboard.putNumber("Enc Dist R", IO.whlEnc_R.getDistance());
         SmartDashboard.putNumber("Shooter Amps", pdp.getCurrent(0));
         SmartDashboard.putNumber("Turret Pot", turretPot.get());
 

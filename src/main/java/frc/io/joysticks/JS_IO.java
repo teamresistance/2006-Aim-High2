@@ -62,6 +62,7 @@ public class JS_IO {
     public static Button turretLLProp = new Button();   //Rotate turret prop using LL
     public static Button lifterUp = new Button();       // Run motor to lift balls
     public static Button lifterDn = new Button();       // Run motor to lower balls
+    public static Pov povLifter = new Pov();
 
     // Constructor
     public JS_IO() {
@@ -148,28 +149,29 @@ public class JS_IO {
         // All stick axisesssss
         dvrRX.setAxis(gamePad, 4);
         dvrRY.setAxis(gamePad, 5);
-        turretRot.setAxis(gamePad, 0);
-        gp_LTgr.setAxis(gamePad, 2);    //0.0 to 1.0 or isDown() GT 0.2
-        gp_RTgr.setAxis(gamePad, 3);
+        turretRot.setAxis(gamePad, 0);  //when btn7 is pressed
+        gp_LTgr.setAxis(gamePad, 2);    //use, Lifter up, 0.0 to 1.0 or isDown() GT 0.2
+        gp_RTgr.setAxis(gamePad, 3);    //not used at this time
 
         // Drive mode buttons
         offMode.setButton(gamePad, 2);
         // tankMode.setButton(gamePad, 2);
         arcadeMode.setButton(gamePad, 3);
-        // autoTest.setButton(gamePad, 4);
+        autoTest.setButton(gamePad, 4);     //Run auto array in Drive state 30
         resetGyro.setButton(gamePad, 10);
         resetDist.setButton(gamePad, 9);
 
-        pov_SP.setPov(gamePad, 0);
+        pov_SP.setPov(gamePad, 0);      //Turn to 0, 45, 90 ... 315
+        // povLifter.setPov(gamePad, 0);
 
         // Turret buttons
         shooterRun.setButton(gamePad, 6);
         shooterStop.setButton(gamePad, 5);
-        lifterUp.setButton(gamePad, 4);
-        lifterDn.setButton(gamePad, 1);
+        // lifterUp.setButton(gamePad, 4);
+        // lifterDn.setButton(gamePad, 1);
 
-        turretJSDir.setButton(gamePad, 7);
-        turretLLProp.setButton(gamePad, 8);
+        turretJSDir.setButton(gamePad, 7);  //Manual LJS X
+        turretLLProp.setButton(gamePad, 8); //Auto LL ctl
         // turretLLDB.setButton(gamePad, 8);
     }
 
@@ -199,6 +201,8 @@ public class JS_IO {
         dvrRX.setAxis();
         dvrRY.setAxis();
         turretRot.setAxis();
+        gp_LTgr.setAxis();
+        gp_RTgr.setAxis();
 
         // Drive mode buttons
         offMode.setButton();
@@ -209,6 +213,7 @@ public class JS_IO {
         resetDist.setButton();
 
         pov_SP.setPov();
+        povLifter.setPov();
 
         // Turret buttons
         shooterRun.setButton();
@@ -218,6 +223,6 @@ public class JS_IO {
 
         turretJSDir.setButton();
         turretLLProp.setButton();
-        // turretLLDB.setButton();
+        turretLLDB.setButton();
     }
 }

@@ -47,8 +47,14 @@ public class Drive {
     private static Victor right = IO.drvMotor_L; // right motor
     private static Victor left = IO.drvMotor_R;  // left motor
     private static DifferentialDrive diffDrv = new DifferentialDrive(left, right);
-    private static Counter dist_L = IO.whlEnc_L;
-    private static Counter dist_R = IO.whlEnc_R;
+    private static double dist_L = 0.0;
+    private static double dist_R = 0.0;
+    private static boolean prvRev_L = false;    // Direction is reverse else fwd 
+    private static boolean prvRev_R = false;    // Direction is reverse else fwd 
+    private static double prvEncDist_L = 0.0;     // prv encoder dist since last direction chg
+    private static double prvEncDist_R = 0.0;     // prv encoder dist since last direction chg
+    private static double psntEncDist_L = 0.0;     // prv encoder dist since last direction chg
+    private static double psntEncDist_R = 0.0;     // prv encoder dist since last direction chg
     private static double dist_Avg = 0.0;
 
     // General
@@ -63,22 +69,25 @@ public class Drive {
     private static double distOut = 0.0;    //Y (Fwd) cmd
 
     /*        [0][]=hdg [1][]=dist       SP,     PB,  DB,  Mn,  Mx, Xcl */
-    private static double[][] parms = {{0.0, -130.0, 3.0, 0.4, 1.0, 0.20},
-    /*                             */  {0.0,   5.5, 0.5,  0.10, 1.0, 0.07}};
+    private static double[][] parms = {{0.0,90.0, 3.0, 0.7, 1.0, 0.20},
+    /*                             */  {0.0,  4.5, 0.5,  0.2, 0.8, 0.07}};
     private static Steer steer = new Steer(parms);  //Used to steer to a hdg with power for distance
 
     // Steer to heading at power for distance.
     private static int trajIdx = 0;  // strCmds Index
     //                                {hdg, %pwr, dist}
-    private static double traj[][] = {{0.0, 70.0, 5.0},
-    /*                           */   {90.0, 70.0, 5.0},
-    /*                           */   {-135.0, 70.0, 7.1},
-    /*                           */   {90.0, 70.0, 5.0},
-    /*                           */   {0.0, 70.0, 5.0},
-    /*                           */   {-90.0, 70.0, 5.0},
-    /*                           */   {135.0, 70.0, 7.1},
-    /*                           */   {-90.0, 70.0, 5.0},
-    /*                           */   {0.0, 70.0, -0.5}};
+    private static double traj[][] = {{0.0, 100.0, 4.0},
+    /*                           */   {90.0, 100.0, 0.0},
+    /*                           */   {90.0, 100.0, 3.0},
+    /*                           */   {-90.0, 100.0, 0.0},
+    /*                           */   {-90.0, 100.0, 5.0},
+    /*                           */   {0.0, 100.0, 0.0},
+    /*                           */   {0.0, 100.0, -4.5}};
+    // /*                           */   {0.0, 70.0, 5.0},
+    // /*                           */   {-90.0, 70.0, 5.0},
+    // /*                           */   {135.0, 70.0, 7.1},
+    // /*                           */   {-90.0, 70.0, 5.0},
+    // /*                           */   {0.0, 70.0, -0.5}};
 
     //Segmented curve to compensate for min required of 0.65 when rotating.  parm[1][3] is hdgOutMn.
     // private static double[][] xOutAr  = {{-1.0, -parms[0][3], -parms[0][3], parms[0][3], parms[0][3], 1.0},
@@ -217,12 +226,47 @@ public class Drive {
     }
 
     private static void resetDist(){
-        dist_L.reset();
-        dist_R.reset();
+        dist_L = 0.0;
+        dist_R = 0.0;
+        psntEncDist_L = 0.0;
+        prvEncDist_L = 0.0;
+        psntEncDist_R = 0.0;
+        prvEncDist_R = 0.0;
+        IO.whlEnc_L.reset();
+        IO.whlEnc_R.reset();
     }
 
     private static double calcDist(){
-		dist_Avg = (dist_L.get() + dist_R.get()) / 2.0;
+        psntEncDist_L = IO.whlEnc_L.getDistance();
+        psntEncDist_R = IO.whlEnc_R.getDistance();
+        if((IO.drvMotor_L.get() < -0.15) && !prvRev_L){
+            prvRev_L = true;
+            IO.whlEnc_L.reset();
+            psntEncDist_L = 0.0;
+            prvEncDist_L = 0.0;
+        }else if((IO.drvMotor_L.get() > 0.15) && prvRev_L){
+            prvRev_L = false;
+            IO.whlEnc_L.reset();
+            psntEncDist_L = 0.0;
+            prvEncDist_L = 0.0;
+        }
+        dist_L += (psntEncDist_L - prvEncDist_L) * (prvRev_L ? -1.0 : 1.0); 
+
+        if((IO.drvMotor_R.get() < -0.15) && !prvRev_R){
+            prvRev_R = true;
+            IO.whlEnc_R.reset();
+            psntEncDist_R = 0.0;
+            prvEncDist_R = 0.0;
+        }else if((IO.drvMotor_R.get() > 0.15) && prvRev_R){
+            prvRev_R = false;
+            IO.whlEnc_R.reset();
+            psntEncDist_R = 0.0;
+            prvEncDist_R = 0.0;
+        }
+        dist_R += (psntEncDist_R - prvEncDist_R) * (prvRev_R ? -1.0 : 1.0); 
+        prvEncDist_L = psntEncDist_L;
+        prvEncDist_R = psntEncDist_R;
+		dist_Avg = (dist_L + dist_R) / 2.0;
         return dist_Avg;
 }
 
@@ -242,6 +286,7 @@ public class Drive {
         SmartDashboard.putNumber("JS Y", JS_IO.dvrRY.get());//Set by JS R Y
         SmartDashboard.putNumber("JS X", JS_IO.dvrRX.get());//Set by JS R X
 
+        SmartDashboard.putNumber("Hdg SP", JS_IO.pov_SP.get());
         SmartDashboard.putNumber("Hdg FB", hdgFB);
         SmartDashboard.putNumber("Hdg Out",hdgOut);
 
@@ -249,8 +294,8 @@ public class Drive {
         // SmartDashboard.putNumber("Enc R", enc_R);
         // distTPF_L = SmartDashboard.getNumber("DistM L", distTPF_L);
         // distTPF_R = SmartDashboard.getNumber("DistM R", distTPF_R);
-        // SmartDashboard.putNumber("Dist L", IO.whlEnc_R.get());
-        // SmartDashboard.putNumber("Dist R", IO.whlEnc_R.get());
+        SmartDashboard.putNumber("Dist L", dist_L);
+        SmartDashboard.putNumber("Dist R", dist_R);
         SmartDashboard.putNumber("Dist A", dist_Avg);
         SmartDashboard.putNumber("Dist FB", distFB);
         SmartDashboard.putNumber("Dist Out",distOut);
