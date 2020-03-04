@@ -139,6 +139,7 @@ public class Drive {
                 break;
             case 2:     //Arcade Mode Drive by JS
                 hdgOut = -JS_IO.dvrRX.get();
+                
                 // hdgOut = BotMath.SegLine(hdgOut, xOutAr);  //Compensate for poor turning.
                 diffDrv.arcadeDrive(JS_IO.dvrRY.get(), hdgOut, false);
                 prvState = state;

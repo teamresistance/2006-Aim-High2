@@ -10,6 +10,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.Auto.Auto;
 import frc.io.hdw_io.IO;
 import frc.io.hdw_io.TestColor1;
 import frc.io.hdw_io.TestColor2;
@@ -22,12 +23,16 @@ import frc.subsystem.Lifter;
 
 public class Robot extends TimedRobot {
 
+
+    Auto auto;
+    private boolean once = true;
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
     @Override
     public void robotInit() {
+        auto = new Auto();
         IO.init();
         LL_IO.init();
         JS_IO.init();
@@ -54,7 +59,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
-
+        auto.init();
+        auto.reset();
     }
 
     /**
@@ -62,6 +68,15 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousPeriodic() {
+        LL_IO.sdbUpdate();
+		if(once){		//start the execution, then check if the entire sequence is done before stopping the run
+			auto.execute();
+		once = false;       
+		}else if(!auto.done()){
+			auto.execute();
+		}
+        //IO.update();
+        Drive.update();
 
     }
 

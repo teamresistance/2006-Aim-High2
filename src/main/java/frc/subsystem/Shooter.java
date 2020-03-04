@@ -333,4 +333,11 @@ public class Shooter {
         pct_IPC = SmartDashboard.getNumber("Inc pct cmd", pct_IPC);
         pct_DPC = SmartDashboard.getNumber("Dec pct cmd", pct_DPC);
     }
+    public static void setState(int aState){
+        state = aState;
+        update();
+    }
+    public static int getState(){
+        return state;
+    }
 }

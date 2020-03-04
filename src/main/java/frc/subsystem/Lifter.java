@@ -95,6 +95,34 @@ public class Lifter {
         }
     }
 
+    public static void aUpdate(int aState){
+                //------------- Main State Machine --------------
+        // cmd update( shooter speed )
+        switch(aState){
+            case 0: // Default, mtr=0.0
+                cmdUpdate( 0.0 );
+                prvState = state;
+                lifterShtrSU = false;
+                break;
+            case 1: // Move balls up            
+                if(LL_IO.llOnTarget() != null){
+                if(Shooter.isAtSpd() && LL_IO.llOnTarget() == 0)
+                cmdUpdate( lifterPct );
+                     }   
+                prvState = state;
+                break;
+            case 2: // Move balls down
+                cmdUpdate( -lifterPct );
+                prvState = state;
+                break;
+            default: // Bad state, mtr off
+                cmdUpdate( 0.0 );
+                prvState = state;
+                System.out.println("Bad Lifter state - " + state);
+                break;
+            }
+    }
+
     // Send commands to shooter motor
     private static void cmdUpdate(double spd){
         lifter.set(spd);
@@ -122,7 +150,8 @@ public class Lifter {
         SmartDashboard.putNumber("Lift Spd", lifterPct);
         SmartDashboard.putNumber("Lift Shtr DB", shtrRpm_db);
         SmartDashboard.putNumber("Lift Shtr Dly", shtrRpm_dly);
-    }
+        SmartDashboard.putNumber("Shooter State", state);
+       }
 
     // Update Smartdashboard shtuff
     private static void sdbUpdate(){

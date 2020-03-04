@@ -157,4 +157,9 @@ public class Turret {
 
         turretFB = IO.turretPot.get();
     }
+    public static void setState(int aState){
+        state = aState;
+        update();
+    }
+
 }

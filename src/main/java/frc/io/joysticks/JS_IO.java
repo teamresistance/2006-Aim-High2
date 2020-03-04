@@ -145,7 +145,8 @@ public class JS_IO {
     }
 
     // ----- gamePad only --------
-    private static void A_GP() {
+    private static void 
+    A_GP() {
         // All stick axisesssss
         dvrRX.setAxis(gamePad, 4);
         dvrRY.setAxis(gamePad, 5);
@@ -154,8 +155,8 @@ public class JS_IO {
         gp_RTgr.setAxis(gamePad, 3);    //not used at this time
 
         // Drive mode buttons
-        offMode.setButton(gamePad, 2);
-        // tankMode.setButton(gamePad, 2);
+        //offMode.setButton(gamePad, 2);
+        tankMode.setButton(gamePad, 2);
         arcadeMode.setButton(gamePad, 3);
         autoTest.setButton(gamePad, 4);     //Run auto array in Drive state 30
         resetGyro.setButton(gamePad, 10);
